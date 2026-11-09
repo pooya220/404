@@ -557,7 +557,7 @@ export default function Dashboard() {
         };
       })
       .sort((a, b) => b.spent - a.spent)
-      .slice(0, 4);
+      .slice(0, 10);
   }, [clients, sessions, sales, repairs]);
 
   if (consolesLoading || productsLoading || clientsLoading || sessionsLoading || salesLoading || purchasesLoading || repairsLoading) {
@@ -1148,21 +1148,21 @@ export default function Dashboard() {
               موجودی بحرانی (بوفه)
               <AlertCircle size={18} className="text-rose-500" />
             </h3>
-            <div className="space-y-4">
-              {stats?.lowStockProducts.slice(0, 5).sort((a,b) => a.stock - b.stock).map(p => (
-                <div key={p.id} className="flex items-center justify-between group">
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-gray-50 dark:bg-slate-700 flex items-center justify-center text-gray-400 group-hover:bg-rose-50 dark:group-hover:bg-rose-900/30 group-hover:text-rose-500 transition-colors">
+            <div className="max-h-[176px] space-y-4 overflow-y-auto overscroll-contain pr-1">
+              {stats?.lowStockProducts.slice().sort((a,b) => a.stock - b.stock).map(p => (
+                <div key={p.id} className="group flex min-h-12 items-center justify-between gap-2">
+                  <div className="flex min-w-0 flex-1 items-center gap-3">
+                    <div className="w-8 h-8 shrink-0 rounded-lg bg-gray-50 dark:bg-slate-700 flex items-center justify-center text-gray-400 group-hover:bg-rose-50 dark:group-hover:bg-rose-900/30 group-hover:text-rose-500 transition-colors">
                       <ShoppingCart size={14} />
                     </div>
-                    <div>
-                      <p className="text-sm font-bold text-gray-800 dark:text-white">{p.name}</p>
-                      <p className="text-[10px] text-gray-400 dark:text-slate-500">
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-sm font-bold text-gray-800 dark:text-white">{p.name}</p>
+                      <p className="truncate text-[10px] text-gray-400 dark:text-slate-500">
                         {p.category} • حداقل مجاز: {formatPersianNumber(getProductMinStock(p))} عدد
                       </p>
                     </div>
                   </div>
-                  <Badge variant={p.stock <= 0 ? "danger" : "warning"}>
+                  <Badge className="shrink-0 whitespace-nowrap" variant={p.stock <= 0 ? "danger" : "warning"}>
                     {p.stock <= 0 ? "ناموجود" : `${formatPersianNumber(p.stock)} عدد`}
                   </Badge>
                 </div>
@@ -1185,14 +1185,14 @@ export default function Dashboard() {
                 </div>
                 <div>
                   <h4 className="font-bold text-gray-900 dark:text-white">سودآورترین مشتریان</h4>
-                  <p className="text-[11px] text-gray-400 dark:text-slate-500 font-semibold">۴ مشتری برتر بر اساس بیشترین پرداختی کل (بازی، بوفه و تعمیرات)</p>
+                  <p className="text-[11px] text-gray-400 dark:text-slate-500 font-semibold">۱۰ مشتری برتر بر اساس بیشترین پرداختی کل (بازی، بوفه و تعمیرات)</p>
                 </div>
               </div>
               <Link to="/clients" className="text-xs font-bold text-indigo-600 dark:text-indigo-400 hover:underline">
                 مشاهده همه
               </Link>
             </div>
-            <div className="space-y-2.5">
+            <div className="max-h-[286px] space-y-2.5 overflow-y-auto overscroll-contain pr-1">
               {topClients.length === 0 ? (
                 <div className="text-center py-6 text-gray-400 text-xs font-bold">مشتری با سابقه پرداخت ثبت نشده است.</div>
               ) : (
@@ -1205,19 +1205,19 @@ export default function Dashboard() {
                     'bg-slate-50 text-slate-500 dark:bg-slate-800/40 dark:text-slate-400 border-slate-200',
                   ];
                   return (
-                    <div key={client.id || idx} className="flex items-center justify-between p-3 bg-slate-50/80 dark:bg-slate-800/60 rounded-2xl border border-slate-100 dark:border-slate-700/50 hover:border-indigo-200 transition-all">
-                      <div className="flex items-center gap-3">
+                    <div key={client.id || idx} className="flex h-16 shrink-0 items-center justify-between gap-2 p-3 bg-slate-50/80 dark:bg-slate-800/60 rounded-2xl border border-slate-100 dark:border-slate-700/50 hover:border-indigo-200 transition-all">
+                      <div className="flex min-w-0 flex-1 items-center gap-3">
                         <span className={cn("w-6 h-6 rounded-lg flex items-center justify-center text-xs font-black border", rankColors[idx] || rankColors[4])}>
                           {formatPersianDigits(idx + 1)}
                         </span>
-                        <div>
-                          <span className="text-sm font-black text-gray-900 dark:text-white block">{client.name}</span>
-                          <span className="text-[10px] text-gray-400 dark:text-slate-500 font-bold">
+                        <div className="min-w-0 flex-1">
+                          <span className="block truncate text-sm font-black text-gray-900 dark:text-white">{client.name}</span>
+                          <span className="block truncate text-[10px] text-gray-400 dark:text-slate-500 font-bold">
                             {formatPersianDigits(client.visits)} نشست بازی {client.repairsCount > 0 ? `• ${formatPersianDigits(client.repairsCount)} سفارش تعمیر` : ''}
                           </span>
                         </div>
                       </div>
-                      <span className="text-xs font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-xl border border-emerald-100 dark:border-emerald-900/50">
+                      <span className="shrink-0 whitespace-nowrap text-xs font-black text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-1 rounded-xl border border-emerald-100 dark:border-emerald-900/50">
                         {formatCurrency(client.spent)}
                       </span>
                     </div>
