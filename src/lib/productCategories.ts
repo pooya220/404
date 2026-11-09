@@ -10,10 +10,9 @@ export const PRINT_SERVICES: readonly PrintService[] = [
 // Keep older shop categories reachable in the stationery/store section.
 export const LEGACY_SHOP_CATEGORIES = ['لوازم جانبی', 'سخت‌افزار', 'سایر'] as const;
 
-export type ProductSection = 'buffet' | 'print' | 'stationery';
+export type ProductSection = 'buffet' | 'stationery';
 
 export const productBelongsToSection = (category: string, section: ProductSection): boolean => {
   if (section === 'buffet') return (BUFFET_CATEGORIES as readonly string[]).includes(category);
-  if (section === 'print') return category === PRINT_CATEGORY;
-  return category === STATIONERY_CATEGORY || (LEGACY_SHOP_CATEGORIES as readonly string[]).includes(category);
+  return category === PRINT_CATEGORY || category === STATIONERY_CATEGORY || (LEGACY_SHOP_CATEGORIES as readonly string[]).includes(category);
 };
