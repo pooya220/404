@@ -11,6 +11,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { formatPersianNumber, formatCurrency, cn, formatPersianDigits } from '../lib/utils';
 import { SearchableSelect } from '../components/SearchableSelect';
+import { InlineClientCreate } from '../components/InlineClientCreate';
 
 const HOUR_SLOTS = [
   "10:00", "11:00", "12:00", "13:00", "14:00", "15:00", 
@@ -104,6 +105,7 @@ export default function Reservations() {
   // Modal & Edit State
   const [showModal, setShowModal] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [isCreatingCustomer, setIsCreatingCustomer] = useState(false);
   const [form, setForm] = useState({ 
     consoleId: '', 
     userId: '', 
@@ -216,6 +218,7 @@ export default function Reservations() {
       status: 'confirmed',
       note: ''
     });
+    setIsCreatingCustomer(false);
     setShowModal(true);
   };
 
@@ -230,6 +233,7 @@ export default function Reservations() {
       status: res.status || 'confirmed',
       note: (res as any).note || ''
     });
+    setIsCreatingCustomer(false);
     setShowModal(true);
   };
 
@@ -267,6 +271,7 @@ export default function Reservations() {
   const closeModal = () => {
     setShowModal(false);
     setEditingId(null);
+    setIsCreatingCustomer(false);
     setForm({ 
       consoleId: '', 
       userId: '', 
@@ -924,7 +929,18 @@ export default function Reservations() {
                   }))}
                   value={form.userId}
                   onChange={(val) => setForm({...form, userId: val})}
+                  onCreateOption={() => setIsCreatingCustomer(true)}
                 />
+
+                {isCreatingCustomer && (
+                  <InlineClientCreate
+                    onCreated={(client) => {
+                      setForm(prev => ({ ...prev, userId: client.id }));
+                      setIsCreatingCustomer(false);
+                    }}
+                    onCancel={() => setIsCreatingCustomer(false)}
+                  />
+                )}
                 
                 {/* Date */}
                 <div>
