@@ -28,7 +28,7 @@ import {
   Palette,
   Gift,
   Database,
-  Server,
+  RefreshCw,
   HardDrive,
   BadgePercent,
   Shield,
@@ -46,7 +46,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import { cn } from './lib/utils';
 import { Input } from './components/ui/common';
 import { useCollection } from './hooks/useFirestore';
-import { useDatabaseStatus } from './hooks/useDatabaseStatus';
+import { useDatabaseStatus, type DBStatus } from './hooks/useDatabaseStatus';
 import { SystemSettings } from './types';
 
 import Consoles from './pages/Consoles';
@@ -185,6 +185,58 @@ function SidebarGroup({
           </motion.div>
         )}
       </AnimatePresence>
+    </div>
+  );
+}
+
+function DatabaseStatusControl({
+  status,
+  details,
+  isRefreshing,
+  onRefresh
+}: {
+  status: DBStatus;
+  details: string | null;
+  isRefreshing: boolean;
+  onRefresh: () => void;
+}) {
+  const label = status === 'CONNECTED' ? 'MySQL متصل' : status === 'LOCAL' ? 'ذخیره مرورگر' : 'دیتابیس قطع';
+
+  return (
+    <div
+      title={details || label}
+      className={cn(
+        "flex items-center justify-between gap-2 rounded-xl border px-2.5 py-2 transition-all",
+        status === 'CONNECTED' && "bg-emerald-50/80 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800/60",
+        status === 'LOCAL' && "bg-cyan-50/80 text-cyan-700 border-cyan-200 dark:bg-cyan-950/40 dark:text-cyan-400 dark:border-cyan-800/60",
+        (status === 'DISCONNECTED' || status === 'ERROR') && "bg-rose-50/80 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-800/60"
+      )}
+    >
+      <div className="flex items-center gap-2 min-w-0">
+        <div className="relative flex items-center justify-center shrink-0">
+          <Database size={15} />
+          <span className={cn(
+            "absolute -top-1 -right-1 w-2 h-2 rounded-full ring-2 ring-white dark:ring-slate-900",
+            status === 'CONNECTED' && "bg-emerald-500 animate-pulse",
+            status === 'LOCAL' && "bg-cyan-500",
+            (status === 'DISCONNECTED' || status === 'ERROR') && "bg-rose-500 animate-pulse"
+          )} />
+        </div>
+        <div className="min-w-0">
+          <p className="text-[10px] font-black leading-none mb-1">اتصال دیتابیس</p>
+          <p className="text-[9px] font-bold opacity-75 truncate">{label}</p>
+        </div>
+      </div>
+      <button
+        type="button"
+        onClick={onRefresh}
+        disabled={isRefreshing}
+        className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 hover:bg-white/80 dark:hover:bg-slate-800/80 disabled:opacity-50 transition-colors"
+        title="بررسی مجدد اتصال و تازه‌سازی اطلاعات"
+        aria-label="تازه‌سازی اتصال دیتابیس"
+      >
+        <RefreshCw size={14} className={isRefreshing ? 'animate-spin' : ''} />
+      </button>
     </div>
   );
 }
@@ -387,6 +439,11 @@ function Layout({ onLogout, children, currentUser }: { onLogout: () => void, chi
     });
   };
 
+  const handleDatabaseRefresh = async () => {
+    await dbStatus.refresh();
+    triggerDatabaseRefresh();
+  };
+
   return (
     <div className="flex h-screen bg-[#dce1e8] dark:bg-slate-950 overflow-hidden transition-colors duration-300">
       {/* Sidebar - Desktop */}
@@ -431,60 +488,44 @@ function Layout({ onLogout, children, currentUser }: { onLogout: () => void, chi
         </nav>
 
         <div className="mt-auto pt-4 border-t border-slate-200 dark:border-slate-800 bg-transparent dark:bg-slate-900">
-          <div className="flex items-center justify-between gap-3 px-2 mb-3 text-right">
-            <div className="flex items-center gap-3">
-              <div className="w-9 h-9 bg-indigo-50 dark:bg-slate-700 rounded-full flex items-center justify-center overflow-hidden shrink-0">
-                <UserIcon size={18} className="text-indigo-600 dark:text-indigo-400" />
-              </div>
-              <div className="overflow-hidden">
-                <p className="text-xs font-bold text-gray-900 dark:text-white truncate">
-                  {currentUser?.fullName || "مدیریت کل"}
-                </p>
-                <div className="text-[9px] text-gray-400 dark:text-slate-500 truncate flex items-center gap-1 font-bold">
-                  <span>نقش:</span>
-                  <span className="text-indigo-600 dark:text-indigo-400">
-                    {userRole === 'admin' ? 'مدیر سیستم' :
-                     userRole === 'operator' ? 'اپراتور کلوپ' :
-                     userRole === 'client' ? 'کلاینت / مشتری' :
-                     'مدیریت کل'}
-                  </span>
+          <div className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/60 dark:bg-slate-950/40 p-3 shadow-sm">
+            <div className="flex items-center justify-between gap-3 text-right">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-10 h-10 bg-indigo-50 dark:bg-slate-700 rounded-xl flex items-center justify-center overflow-hidden shrink-0">
+                  <UserIcon size={19} className="text-indigo-600 dark:text-indigo-400" />
+                </div>
+                <div className="overflow-hidden">
+                  <p className="text-xs font-black text-gray-900 dark:text-white truncate">
+                    {currentUser?.fullName || "مدیریت کل"}
+                  </p>
+                  <div className="text-[9px] text-gray-400 dark:text-slate-500 truncate flex items-center gap-1 font-bold">
+                    <span>نقش:</span>
+                    <span className="text-indigo-600 dark:text-indigo-400">
+                      {userRole === 'admin' ? 'مدیر سیستم' :
+                       userRole === 'operator' ? 'اپراتور کلوپ' :
+                       userRole === 'client' ? 'کلاینت / مشتری' :
+                       'مدیریت کل'}
+                    </span>
+                  </div>
                 </div>
               </div>
+              <button
+                type="button"
+                onClick={onLogout}
+                className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all text-[10px] font-black shrink-0"
+                title="خروج از سیستم"
+              >
+                <LogOut size={15} />
+                <span>خروج</span>
+              </button>
             </div>
-          </div>
-
-          {/* Logout & Database Status inline row */}
-          <div className="flex items-center justify-between gap-2 px-1 pt-2 border-t border-slate-100 dark:border-slate-800/60">
-            <button 
-              onClick={onLogout}
-              className="flex items-center gap-2 px-3 py-2 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all text-xs font-bold"
-            >
-              <LogOut size={16} />
-              <span>خروج از سیستم</span>
-            </button>
-
-            {/* Database Connection Status Icon & Tag */}
-            <div 
-              title={`وضعیت اتصال دیتابیس: ${dbStatus.status === 'CONNECTED' ? 'اتصال به MySQL برقرار است' : dbStatus.status === 'LOCAL' ? 'ذخیره محلی مرورگر' : 'قطع ارتباط'}`}
-              className={cn(
-                "flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-[11px] font-bold transition-all cursor-default select-none shrink-0",
-                dbStatus.status === 'CONNECTED' && "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-400 dark:border-emerald-800/60",
-                dbStatus.status === 'LOCAL' && "bg-cyan-50 text-cyan-700 border-cyan-200 dark:bg-cyan-950/50 dark:text-cyan-400 dark:border-cyan-800/60",
-                (dbStatus.status === 'DISCONNECTED' || dbStatus.status === 'ERROR') && "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/50 dark:text-rose-400 dark:border-rose-800/60 animate-pulse"
-              )}
-            >
-              <div className="relative flex items-center justify-center">
-                {dbStatus.status === 'CONNECTED' ? <Server size={14} /> : <Database size={14} />}
-                <span className={cn(
-                  "absolute -top-1 -right-1 w-2 h-2 rounded-full ring-2 ring-white dark:ring-slate-900",
-                  dbStatus.status === 'CONNECTED' && "bg-emerald-500 animate-pulse",
-                  dbStatus.status === 'LOCAL' && "bg-cyan-500",
-                  (dbStatus.status === 'DISCONNECTED' || dbStatus.status === 'ERROR') && "bg-rose-500 animate-ping"
-                )} />
-              </div>
-              <span className="text-[10px]">
-                {dbStatus.status === 'CONNECTED' ? 'MySQL متصل' : dbStatus.status === 'LOCAL' ? 'ذخیره مرورگر' : 'قطع'}
-              </span>
+            <div className="mt-3 pt-3 border-t border-slate-200/70 dark:border-slate-800/70">
+              <DatabaseStatusControl
+                status={dbStatus.status}
+                details={dbStatus.details}
+                isRefreshing={dbStatus.isRefreshing}
+                onRefresh={handleDatabaseRefresh}
+              />
             </div>
           </div>
         </div>
@@ -576,42 +617,48 @@ function Layout({ onLogout, children, currentUser }: { onLogout: () => void, chi
                 ))}
               </nav>
 
-              {/* Logout & Database Status inline row in mobile sidebar */}
               <div className="mt-auto pt-4 border-t border-slate-100 dark:border-slate-800">
-                <div className="flex items-center justify-between gap-2 px-1">
-                  <button 
-                    onClick={() => {
-                      setIsSidebarOpen(false);
-                      onLogout();
-                    }}
-                    className="flex items-center gap-2 px-3 py-2 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all text-xs font-bold"
-                  >
-                    <LogOut size={16} />
-                    <span>خروج از سیستم</span>
-                  </button>
-
-                  {/* Database Connection Status Icon & Tag */}
-                  <div 
-                    title={`وضعیت اتصال دیتابیس: ${dbStatus.status === 'CONNECTED' ? 'اتصال به MySQL برقرار است' : dbStatus.status === 'LOCAL' ? 'ذخیره محلی مرورگر' : 'قطع ارتباط'}`}
-                    className={cn(
-                      "flex items-center gap-1.5 px-2.5 py-1.5 rounded-xl border text-[11px] font-bold transition-all cursor-default select-none shrink-0",
-                      dbStatus.status === 'CONNECTED' && "bg-emerald-50 text-emerald-700 border-emerald-200 dark:bg-emerald-950/50 dark:text-emerald-400 dark:border-emerald-800/60",
-                      dbStatus.status === 'LOCAL' && "bg-cyan-50 text-cyan-700 border-cyan-200 dark:bg-cyan-950/50 dark:text-cyan-400 dark:border-cyan-800/60",
-                      (dbStatus.status === 'DISCONNECTED' || dbStatus.status === 'ERROR') && "bg-rose-50 text-rose-700 border-rose-200 dark:bg-rose-950/50 dark:text-rose-400 dark:border-rose-800/60 animate-pulse"
-                    )}
-                  >
-                    <div className="relative flex items-center justify-center">
-                      {dbStatus.status === 'CONNECTED' ? <Server size={14} /> : <Database size={14} />}
-                      <span className={cn(
-                        "absolute -top-1 -right-1 w-2 h-2 rounded-full ring-2 ring-white dark:ring-slate-900",
-                        dbStatus.status === 'CONNECTED' && "bg-emerald-500 animate-pulse",
-                        dbStatus.status === 'LOCAL' && "bg-cyan-500",
-                        (dbStatus.status === 'DISCONNECTED' || dbStatus.status === 'ERROR') && "bg-rose-500 animate-ping"
-                      )} />
+                <div className="rounded-2xl border border-slate-200/80 dark:border-slate-700/80 bg-white/60 dark:bg-slate-950/40 p-3 shadow-sm">
+                  <div className="flex items-center justify-between gap-3 text-right">
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="w-10 h-10 bg-indigo-50 dark:bg-slate-700 rounded-xl flex items-center justify-center overflow-hidden shrink-0">
+                        <UserIcon size={19} className="text-indigo-600 dark:text-indigo-400" />
+                      </div>
+                      <div className="overflow-hidden">
+                        <p className="text-xs font-black text-gray-900 dark:text-white truncate">
+                          {currentUser?.fullName || "مدیریت کل"}
+                        </p>
+                        <div className="text-[9px] text-gray-400 dark:text-slate-500 truncate flex items-center gap-1 font-bold">
+                          <span>نقش:</span>
+                          <span className="text-indigo-600 dark:text-indigo-400">
+                            {userRole === 'admin' ? 'مدیر سیستم' :
+                             userRole === 'operator' ? 'اپراتور کلوپ' :
+                             userRole === 'client' ? 'کلاینت / مشتری' :
+                             'مدیریت کل'}
+                          </span>
+                        </div>
+                      </div>
                     </div>
-                    <span className="text-[10px]">
-                      {dbStatus.status === 'CONNECTED' ? 'MySQL متصل' : dbStatus.status === 'LOCAL' ? 'ذخیره مرورگر' : 'قطع'}
-                    </span>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setIsSidebarOpen(false);
+                        onLogout();
+                      }}
+                      className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl text-red-500 hover:bg-red-50 dark:hover:bg-red-950/30 transition-all text-[10px] font-black shrink-0"
+                      title="خروج از سیستم"
+                    >
+                      <LogOut size={15} />
+                      <span>خروج</span>
+                    </button>
+                  </div>
+                  <div className="mt-3 pt-3 border-t border-slate-200/70 dark:border-slate-800/70">
+                    <DatabaseStatusControl
+                      status={dbStatus.status}
+                      details={dbStatus.details}
+                      isRefreshing={dbStatus.isRefreshing}
+                      onRefresh={handleDatabaseRefresh}
+                    />
                   </div>
                 </div>
               </div>
