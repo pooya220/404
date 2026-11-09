@@ -784,7 +784,7 @@ export default function Products() {
             <Button 
                variant="outline" 
                onClick={() => {
-                 setPosCategory('همه');
+                 setPosCategory(activeTab === 'stationery' && storeCategoryFilter === PRINT_CATEGORY ? PRINT_CATEGORY : 'همه');
                  setQuickSaleSearch('');
                  setIsQuickSaleOpen(true);
                }}
