@@ -1,5 +1,4 @@
 import { summarizeFinance, sessionAmounts, saleAmounts, repairPaid, repairReceipts, repairDate, repairPartsExpenseCost, repairPartsDate, sessionDate, customerSessionDate, isRevenueSale, clientSessionShare, money, inPeriod } from '../lib/finance';
-import { clientActivityMonthKey, dailyClientActivityBuckets } from '../lib/clientActivity';
 import React, { useMemo, useState } from 'react';
 import { useCollection } from '../hooks/useFirestore';
 import { Console, Product, Session, AppUser, SystemSettings, RepairItem } from '../types';
@@ -32,13 +31,11 @@ import {
   formatJalali, 
   getJalaliMonthRange,
   getCurrentJalaliDate,
-  getJalaliMonthName,
   localDateInput
 } from '../lib/dateUtils';
 import { 
   TrendingUp, 
   TrendingDown, 
-  Calendar, 
   Gamepad2, 
   ShoppingCart, 
   Clock, 
@@ -54,8 +51,6 @@ import {
   PieChart as PieChartIcon,
   Search,
   Award,
-  ChevronLeft,
-  ChevronRight,
   UserCheck,
   UserX,
   Wrench
@@ -66,6 +61,7 @@ const COLORS = ['#6366f1', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#ec4899'
 
 type DateRangeInputs = { start: string; end: string };
 type DateRangeBounds = { start?: Date; end?: Date; valid: boolean };
+type AnalyticsRangePreset = 'today' | 'yesterday' | 'last7Days' | 'last30Days' | 'thisMonth' | 'specificDay' | 'custom' | 'all';
 
 const createRecentDateRange = (): DateRangeInputs => {
   const today = new Date();
@@ -94,55 +90,128 @@ const formatDateRangeLabel = (range: DateRangeBounds) => range.valid
   ? `${formatJalali(range.start!, 'yyyy/MM/dd')} تا ${formatJalali(range.end!, 'yyyy/MM/dd')}`
   : 'بازهٔ انتخابی نامعتبر';
 
-function DateRangeFilter({
-  start,
-  end,
-  label,
-  onStartChange,
-  onEndChange,
+const buildClientActivityBuckets = (
+  activities: { date: string; amount: number; visits?: number }[],
+  bounds: DateRangeBounds,
+  allTime: boolean
+) => {
+  const validActivities = activities
+    .map(activity => ({ ...activity, parsedDate: new Date(activity.date) }))
+    .filter(activity => Number.isFinite(activity.parsedDate.getTime()));
+  if (!bounds.valid || (!allTime && (!bounds.start || !bounds.end))) return [];
+
+  const now = new Date();
+  let earliestActivityDate: Date | undefined;
+  validActivities.forEach(activity => {
+    if (!earliestActivityDate || activity.parsedDate < earliestActivityDate) earliestActivityDate = activity.parsedDate;
+  });
+  const rangeStart = allTime && earliestActivityDate
+    ? new Date(earliestActivityDate)
+    : bounds.start;
+  const rangeEnd = allTime ? new Date(now.getFullYear(), now.getMonth(), now.getDate(), 23, 59, 59, 999) : bounds.end;
+  if (!rangeStart || !rangeEnd || rangeStart > rangeEnd) return [];
+
+  const useMonthlyBuckets = allTime || rangeEnd.getTime() - rangeStart.getTime() > 120 * 24 * 60 * 60 * 1000;
+  const buckets: Record<string, { date: string; spend: number; visits: number; order: number }> = {};
+  const cursor = useMonthlyBuckets
+    ? new Date(rangeStart.getFullYear(), rangeStart.getMonth(), 1)
+    : new Date(rangeStart.getFullYear(), rangeStart.getMonth(), rangeStart.getDate());
+  let guard = 0;
+  while (cursor <= rangeEnd && guard++ < (useMonthlyBuckets ? 1200 : 5000)) {
+    const key = useMonthlyBuckets
+      ? `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}`
+      : `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}-${String(cursor.getDate()).padStart(2, '0')}`;
+    buckets[key] = {
+      date: formatJalali(cursor, useMonthlyBuckets ? 'yyyy/MM' : 'MM/dd'),
+      spend: 0,
+      visits: 0,
+      order: cursor.getTime(),
+    };
+    if (useMonthlyBuckets) cursor.setMonth(cursor.getMonth() + 1);
+    else cursor.setDate(cursor.getDate() + 1);
+  }
+
+  validActivities.forEach(activity => {
+    const date = activity.parsedDate;
+    if (date < rangeStart || date > rangeEnd) return;
+    const key = useMonthlyBuckets
+      ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
+      : `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}-${String(date.getDate()).padStart(2, '0')}`;
+    const bucket = buckets[key];
+    if (!bucket) return;
+    bucket.spend += Number.isFinite(Number(activity.amount)) ? Number(activity.amount) : 0;
+    bucket.visits += Number.isFinite(Number(activity.visits)) ? Number(activity.visits) : 0;
+  });
+
+  return Object.values(buckets).sort((a, b) => a.order - b.order).map(({ order: _order, ...bucket }) => bucket);
+};
+
+function AnalyticsRangeFilter({
+  preset,
+  dates,
+  onPresetChange,
+  onDatesChange,
+  invalid,
 }: {
-  start: string;
-  end: string;
-  label: string;
-  onStartChange: (value: string) => void;
-  onEndChange: (value: string) => void;
+  preset: AnalyticsRangePreset;
+  dates: DateRangeInputs;
+  onPresetChange: (value: AnalyticsRangePreset) => void;
+  onDatesChange: (value: DateRangeInputs) => void;
+  invalid: boolean;
 }) {
-  const error = !start || !end
-    ? 'هر دو تاریخ را انتخاب کنید.'
-    : start > end
-      ? 'تاریخ شروع باید قبل از تاریخ پایان باشد.'
-      : '';
+  const today = localDateInput();
+  const updatePreset = (value: AnalyticsRangePreset) => {
+    onPresetChange(value);
+    if (value === 'specificDay') onDatesChange({ start: today, end: today });
+  };
 
   return (
-    <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/60 p-3" aria-label={label}>
-      <p className="mb-2 text-[10px] font-black text-slate-500 dark:text-slate-400">{label}</p>
-      <div className="flex flex-wrap items-center gap-2.5">
-        <label className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 dark:text-slate-400">
-          <span>از</span>
+    <div className="flex flex-wrap items-center gap-3 rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2" aria-label="فیلتر بازه زمانی آمار">
+      <label htmlFor="analytics-range-preset" className="text-xs font-black text-slate-500 dark:text-slate-300">بازه زمانی</label>
+      <select
+        id="analytics-range-preset"
+        value={preset}
+        onChange={event => updatePreset(event.target.value as AnalyticsRangePreset)}
+        className="h-9 min-w-36 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-3 text-xs font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-indigo-500"
+      >
+        <option value="today">امروز</option>
+        <option value="yesterday">دیروز</option>
+        <option value="last7Days">۷ روز اخیر</option>
+        <option value="last30Days">۳۰ روز اخیر</option>
+        <option value="thisMonth">این ماه</option>
+        <option value="specificDay">روز خاص</option>
+        <option value="custom">بازه دلخواه</option>
+        <option value="all">همه زمان‌ها</option>
+      </select>
+
+      {preset === 'specificDay' && (
+        <label className="flex items-center gap-2 text-[11px] font-bold text-slate-500 dark:text-slate-400">
+          <span>روز</span>
           <input
             type="date"
             dir="ltr"
-            value={start}
-            max={localDateInput()}
-            onChange={event => onStartChange(event.target.value)}
-            aria-label={`${label}، تاریخ شروع`}
-            className="h-9 w-32 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-2 text-[11px] font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-indigo-500"
+            value={dates.start}
+            max={today}
+            onChange={event => onDatesChange({ start: event.target.value, end: event.target.value })}
+            aria-label="انتخاب روز آمار"
+            className="h-9 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-2 text-[11px] font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-indigo-500"
           />
         </label>
-        <label className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 dark:text-slate-400">
-          <span>تا</span>
-          <input
-            type="date"
-            dir="ltr"
-            value={end}
-            max={localDateInput()}
-            onChange={event => onEndChange(event.target.value)}
-            aria-label={`${label}، تاریخ پایان`}
-            className="h-9 w-32 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-2 text-[11px] font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-indigo-500"
-          />
-        </label>
-      </div>
-      {error && <p className="mt-2 text-[10px] font-bold text-rose-500">{error}</p>}
+      )}
+
+      {preset === 'custom' && (
+        <div className="flex flex-wrap items-center gap-2">
+          <label className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 dark:text-slate-400">
+            <span>از</span>
+            <input type="date" dir="ltr" value={dates.start} max={today} onChange={event => onDatesChange({ ...dates, start: event.target.value })} aria-label="تاریخ شروع بازه آمار" className="h-9 w-32 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-2 text-[11px] font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-indigo-500" />
+          </label>
+          <label className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 dark:text-slate-400">
+            <span>تا</span>
+            <input type="date" dir="ltr" value={dates.end} max={today} onChange={event => onDatesChange({ ...dates, end: event.target.value })} aria-label="تاریخ پایان بازه آمار" className="h-9 w-32 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-2 text-[11px] font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-indigo-500" />
+          </label>
+        </div>
+      )}
+      {invalid && <span role="alert" className="text-[10px] font-bold text-rose-500">بازه تاریخ معتبر نیست.</span>}
     </div>
   );
 }
@@ -163,87 +232,70 @@ export default function Analytics() {
   const { data: tiers } = useCollection<any>('client_tiers');
 
   const initialJalaliDate = getCurrentJalaliDate();
-  const initialJalaliMonthRange = getJalaliMonthRange(
-    initialJalaliDate.year,
-    initialJalaliDate.month,
-    settingsList?.[0]?.dayResetHour ?? 0,
-    settingsList?.[0]?.dayResetMinute ?? 0
-  );
-  const [analyticsMode, setAnalyticsMode] = useState<'period' | 'all'>('all');
-  const [periodMonth, setPeriodMonth] = useState(() => ({
-    year: initialJalaliDate.year,
-    month: initialJalaliDate.month,
-  }));
-  const [periodStartInput, setPeriodStartInput] = useState(() => localDateInput(initialJalaliMonthRange.start));
-  const [periodEndInput, setPeriodEndInput] = useState(() => localDateInput(initialJalaliMonthRange.end));
-  const [revenueTrendRangeInputs, setRevenueTrendRangeInputs] = useState<DateRangeInputs>(createRecentDateRange);
-  const [topClientsRangeInputs, setTopClientsRangeInputs] = useState<DateRangeInputs>(createRecentDateRange);
+  const [rangePreset, setRangePreset] = useState<AnalyticsRangePreset>('last30Days');
+  const [periodDateInputs, setPeriodDateInputs] = useState<DateRangeInputs>(createRecentDateRange);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
-  const [selectedClientChartMonth, setSelectedClientChartMonth] = useState<string | null>(null);
   const [activeSegment, setActiveSegment] = useState<'performance' | 'shareholders'>('performance');
 
   const dayResetHour = settingsList?.[0]?.dayResetHour ?? 0;
   const dayResetMinute = settingsList?.[0]?.dayResetMinute ?? 0;
-  const currentClientMonthKey = `${initialJalaliDate.year}/${String(initialJalaliDate.month + 1).padStart(2, '0')}`;
-
-  const shiftPeriodMonth = (delta: number) => {
-    let year = periodMonth.year;
-    let month = periodMonth.month + delta;
-    if (month < 0) {
-      month = 11;
-      year -= 1;
-    } else if (month > 11) {
-      month = 0;
-      year += 1;
+  const analyticsMode = rangePreset === 'all' ? 'all' : 'period';
+  const periodBounds = useMemo<DateRangeBounds>(() => {
+    if (rangePreset === 'all') return { start: undefined, end: undefined, valid: true };
+    if (rangePreset === 'custom') return parseDateRange(periodDateInputs);
+    if (rangePreset === 'specificDay') {
+      const selectedDate = periodDateInputs.start || periodDateInputs.end;
+      return parseDateRange({ start: selectedDate, end: selectedDate });
     }
-    const nextMonth = { year, month };
-    const range = getJalaliMonthRange(year, month, dayResetHour, dayResetMinute);
-    setPeriodMonth(nextMonth);
-    setPeriodStartInput(localDateInput(range.start));
-    setPeriodEndInput(localDateInput(range.end));
-  };
+    if (rangePreset === 'thisMonth') {
+      const currentJalaliDate = getCurrentJalaliDate();
+      const range = getJalaliMonthRange(currentJalaliDate.year, currentJalaliDate.month, dayResetHour, dayResetMinute);
+      return { start: range.start, end: range.end, valid: range.start <= range.end };
+    }
 
-  const periodBounds = useMemo(() => {
-    if (analyticsMode === 'all') return { start: undefined, end: undefined, valid: true };
-    const parseDate = (value: string, isEnd: boolean) => {
-      const [year, month, day] = value.split('-').map(Number);
-      if (!year || !month || !day) return undefined;
-      return isEnd
-        ? new Date(year, month - 1, day, 23, 59, 59, 999)
-        : new Date(year, month - 1, day, 0, 0, 0, 0);
-    };
-    const start = parseDate(periodStartInput, false);
-    const end = parseDate(periodEndInput, true);
-    return { start, end, valid: !!start && !!end && start <= end };
-  }, [analyticsMode, periodStartInput, periodEndInput]);
-
-  const revenueTrendRange = useMemo(() => parseDateRange(revenueTrendRangeInputs), [revenueTrendRangeInputs]);
-  const topClientsRange = useMemo(() => parseDateRange(topClientsRangeInputs), [topClientsRangeInputs]);
+    const end = new Date();
+    if (rangePreset === 'yesterday') end.setDate(end.getDate() - 1);
+    end.setHours(23, 59, 59, 999);
+    const start = new Date(end.getFullYear(), end.getMonth(), end.getDate());
+    if (rangePreset === 'last7Days') start.setDate(start.getDate() - 6);
+    else if (rangePreset === 'last30Days') start.setDate(start.getDate() - 29);
+    return { start, end, valid: true };
+  }, [rangePreset, periodDateInputs, dayResetHour, dayResetMinute]);
 
   const isWithinAnalyticsPeriod = (date: any) => analyticsMode === 'all'
     || (!!periodBounds.valid && inPeriod(date, periodBounds.start, periodBounds.end));
+  const rangePresetLabels: Record<AnalyticsRangePreset, string> = {
+    today: 'امروز',
+    yesterday: 'دیروز',
+    last7Days: '۷ روز اخیر',
+    last30Days: '۳۰ روز اخیر',
+    thisMonth: 'این ماه',
+    specificDay: 'روز خاص',
+    custom: 'بازه دلخواه',
+    all: 'همه زمان‌ها',
+  };
   const selectedPeriodLabel = analyticsMode === 'all'
-    ? 'کل تاریخچه'
+    ? rangePresetLabels.all
     : periodBounds.valid
-      ? `${formatJalali(periodBounds.start!, 'yyyy/MM/dd')} تا ${formatJalali(periodBounds.end!, 'yyyy/MM/dd')}`
-      : 'بازهٔ تاریخ نامعتبر';
+      ? ['specificDay', 'custom'].includes(rangePreset)
+        ? `${rangePresetLabels[rangePreset]} · ${formatDateRangeLabel(periodBounds)}`
+        : rangePresetLabels[rangePreset]
+      : 'بازه تاریخ نامعتبر';
 
   const completedSessions = useMemo(() => (sessions || []).filter(s => s.status === 'completed'), [sessions]);
   const periodSessions = useMemo(
     () => completedSessions.filter(session => isWithinAnalyticsPeriod(sessionDate(session))),
     [completedSessions, analyticsMode, periodBounds]
   );
-  // Customer ranking uses play start time and its own date filter, independent
-  // of the page-wide period used by the other financial summaries.
-  const topClientsRangeSessions = useMemo(
-    () => topClientsRange.valid
-      ? completedSessions.filter(session => inPeriod(customerSessionDate(session), topClientsRange.start, topClientsRange.end))
+  const rangeClientSessions = useMemo(
+    () => periodBounds.valid
+      ? completedSessions.filter(session => isWithinAnalyticsPeriod(customerSessionDate(session)))
       : [],
-    [completedSessions, topClientsRange]
+    [completedSessions, analyticsMode, periodBounds]
   );
-  const topClientsRangeSales = useMemo(
-    () => (sales || []).filter((sale: any) => isRevenueSale(sale) && topClientsRange.valid && inPeriod(sale.timestamp, topClientsRange.start, topClientsRange.end)),
-    [sales, topClientsRange]
+  const rangeClientSales = useMemo(
+    () => (sales || []).filter((sale: any) => isRevenueSale(sale) && isWithinAnalyticsPeriod(sale.timestamp)),
+    [sales, analyticsMode, periodBounds]
   );
   const periodSales = useMemo(
     () => (sales || []).filter((sale: any) => isRevenueSale(sale) && isWithinAnalyticsPeriod(sale.timestamp)),
@@ -264,53 +316,6 @@ export default function Analytics() {
     [repairs, analyticsMode, periodBounds]
   );
 
-  const clientChartMonthOptions = useMemo(() => {
-    const activityMonths = new Set<string>();
-    const currentMonthOrdinal = initialJalaliDate.year * 12 + initialJalaliDate.month + 1;
-    const addMonth = (dateValue: any) => {
-      if (!dateValue) return;
-      const key = clientActivityMonthKey(dateValue);
-      if (!key) return;
-      const [year, month] = key.split('/').map(Number);
-      if (year * 12 + month <= currentMonthOrdinal) activityMonths.add(key);
-    };
-
-    if (selectedClientId) {
-      completedSessions.forEach(session => {
-        const ids = session.userIds?.length ? session.userIds : [session.userId];
-        if (ids.includes(selectedClientId)) addMonth(customerSessionDate(session));
-      });
-      (sales || []).forEach((sale: any) => {
-        if (isRevenueSale(sale) && (sale.userId || sale.clientId) === selectedClientId) addMonth(sale.timestamp);
-      });
-      (repairs || []).forEach((repair: any) => {
-        if (repair.clientId === selectedClientId) repairReceipts(repair).forEach(receipt => addMonth(receipt.date));
-      });
-    }
-
-    const keys = [...new Set([...activityMonths, currentClientMonthKey])];
-    const monthOrdinal = (key: string) => {
-      const [year, month] = key.split('/').map(Number);
-      return year * 12 + month;
-    };
-    return keys.sort((a, b) => monthOrdinal(b) - monthOrdinal(a)).map(key => {
-      const [year, month] = key.split('/').map(Number);
-      return {
-        key,
-        hasActivity: activityMonths.has(key),
-        label: `${getJalaliMonthName(month - 1)} ${formatPersianDigits(year)}`,
-      };
-    });
-  }, [selectedClientId, completedSessions, sales, repairs, currentClientMonthKey]);
-
-  const selectedClientChartMonthKey = clientChartMonthOptions.some(option => option.key === selectedClientChartMonth)
-    ? selectedClientChartMonth!
-    : clientChartMonthOptions.find(option => option.hasActivity)?.key || currentClientMonthKey;
-  const selectedClientChartMonthRange = useMemo(() => {
-    const [year, month] = selectedClientChartMonthKey.split('/').map(Number);
-    return getJalaliMonthRange(year, month - 1);
-  }, [selectedClientChartMonthKey]);
-
   // --- Debtors Statistics (Negative Wallet Balances) ---
   const debtorStats = useMemo(() => {
     if (!clients) return { count: 0, totalDebt: 0 };
@@ -321,7 +326,7 @@ export default function Analytics() {
 
   // --- 0. Customer Performance Analysis ---
   const clientPerformance = useMemo(() => {
-    if (!clients || !sessions || !sales || !topClientsRange.valid) return [];
+    if (!clients || !sessions || !sales || !periodBounds.valid) return [];
 
     const stats: Record<string, { id: string, name: string, visitCount: number, totalSpend: number, lastVisit: string | null, repairsCount: number }> = {};
 
@@ -329,7 +334,7 @@ export default function Analytics() {
       stats[c.id] = { id: c.id, name: c.name, visitCount: 0, totalSpend: 0, lastVisit: null, repairsCount: 0 };
     });
 
-    topClientsRangeSessions.forEach(s => {
+    rangeClientSessions.forEach(s => {
       for (const uid of s.userIds?.length ? s.userIds : [s.userId]) {
         if (!uid || !stats[uid]) continue;
         stats[uid].visitCount++; stats[uid].totalSpend += clientSessionShare(s, uid);
@@ -338,7 +343,7 @@ export default function Analytics() {
       }
     });
 
-    topClientsRangeSales.forEach((sale: any) => {
+    rangeClientSales.forEach((sale: any) => {
       const uId = sale.userId || sale.clientId;
       if (isRevenueSale(sale) && uId && stats[uId]) {
         stats[uId].totalSpend += (sale.totalAmount || 0);
@@ -351,7 +356,7 @@ export default function Analytics() {
     (repairs || []).forEach((r: any) => {
       const uId = r.clientId;
       if (uId && stats[uId]) {
-        const receipts = repairReceipts(r).filter(p => inPeriod(p.date, topClientsRange.start, topClientsRange.end));
+        const receipts = repairReceipts(r).filter(p => isWithinAnalyticsPeriod(p.date));
         const cost = receipts.reduce((sum, receipt) => sum + money(receipt.amount), 0);
         if (cost <= 0) return;
         stats[uId].totalSpend += cost;
@@ -366,7 +371,7 @@ export default function Analytics() {
     return Object.values(stats)
       .sort((a, b) => b.totalSpend - a.totalSpend)
       .filter(c => c.totalSpend > 0 || c.visitCount > 0 || c.repairsCount > 0);
-  }, [clients, sessions, sales, repairs, topClientsRangeSessions, topClientsRangeSales, topClientsRange]);
+  }, [clients, sessions, sales, repairs, rangeClientSessions, rangeClientSales, analyticsMode, periodBounds]);
 
   const selectedClientHistory = useMemo(() => {
     if (!selectedClientId) return [];
@@ -390,9 +395,8 @@ export default function Analytics() {
       repairReceipts(repair).forEach(receipt => activities.push({ date: receipt.date, amount: money(receipt.amount) }));
     });
 
-    return dailyClientActivityBuckets(activities, selectedClientChartMonthRange.start, selectedClientChartMonthRange.end)
-      .map(({ order: _order, ...entry }) => entry);
-  }, [selectedClientId, completedSessions, sales, repairs, selectedClientChartMonthRange]);
+    return buildClientActivityBuckets(activities, periodBounds, analyticsMode === 'all');
+  }, [selectedClientId, completedSessions, sales, repairs, periodBounds, analyticsMode]);
 
   const selectedClient = useMemo(() => 
     clients?.find(c => c.id === selectedClientId),
@@ -546,11 +550,25 @@ export default function Analytics() {
 
   // --- 1. Revenue Over Time (Daily) ---
   const revenueTrend = useMemo(() => {
-    const rangeStart = revenueTrendRange.start;
-    const rangeEnd = revenueTrendRange.end;
-    if (!revenueTrendRange.valid || !rangeStart || !rangeEnd) return [];
+    if (!periodBounds.valid) return [];
+    let rangeStart = periodBounds.start;
+    let rangeEnd = periodBounds.end;
+    if (analyticsMode === 'all') {
+      const activityDates = [
+        ...completedSessions.map(session => sessionDate(session)),
+        ...(sales || []).filter((sale: any) => isRevenueSale(sale)).map((sale: any) => sale.timestamp),
+        ...(repairs || []).flatMap((repair: any) => repairReceipts(repair).map(receipt => receipt.date)),
+      ].map(value => new Date(value)).filter(date => Number.isFinite(date.getTime()));
+      if (!activityDates.length) return [];
+      let earliest = activityDates[0];
+      activityDates.forEach(date => { if (date < earliest) earliest = date; });
+      rangeStart = new Date(earliest.getFullYear(), earliest.getMonth(), 1);
+      rangeEnd = new Date();
+      rangeEnd.setHours(23, 59, 59, 999);
+    }
+    if (!rangeStart || !rangeEnd) return [];
     const trends: Record<string, { date: string, game: number, buffet: number, repair: number, total: number, order: number }> = {};
-    const useMonthlyBuckets = rangeEnd.getTime() - rangeStart.getTime() > 120 * 24 * 60 * 60 * 1000;
+    const useMonthlyBuckets = analyticsMode === 'all' || rangeEnd.getTime() - rangeStart.getTime() > 120 * 24 * 60 * 60 * 1000;
 
     if (useMonthlyBuckets) {
       const cursor = new Date(rangeStart.getFullYear(), rangeStart.getMonth(), 1);
@@ -616,7 +634,7 @@ export default function Analytics() {
       .forEach(receipt => processDate(receipt.date, 0, 0, receipt.amount)));
 
     return Object.values(trends).sort((a, b) => a.order - b.order).map(({ order: _order, ...entry }) => entry);
-  }, [completedSessions, sales, repairs, revenueTrendRange, dayResetHour, dayResetMinute, products]);
+  }, [completedSessions, sales, repairs, periodBounds, analyticsMode, dayResetHour, dayResetMinute, products]);
 
   // --- 1.1 Repairs & Hardware Services Performance ---
   const repairPerformance = useMemo(() => {
@@ -693,13 +711,15 @@ export default function Analytics() {
   // --- 2. Revenue by Console Type ---
   const consoleRevenue = useMemo(() => {
     if (!consoles) return [];
-    const stats: Record<string, number> = {};
+    const stats: Record<string, { name: string; value: number }> = {};
     periodSessions.forEach(s => {
       const con = consoles.find(c => c.id === s.consoleId);
-      const type = con?.type || 'نامشخص';
-      stats[type] = (stats[type] || 0) + (s.totalSessionAmount || 0);
+      const type = String(con?.type || 'نامشخص').trim() || 'نامشخص';
+      const key = type.toLocaleLowerCase();
+      if (!stats[key]) stats[key] = { name: type, value: 0 };
+      stats[key].value += Number(s.totalSessionAmount) || 0;
     });
-    return Object.entries(stats).map(([name, value]) => ({ name, value }));
+    return Object.values(stats).sort((a, b) => b.value - a.value);
   }, [consoles, periodSessions]);
 
   // --- 3. Peak Hours Analysis ---
@@ -860,6 +880,41 @@ export default function Analytics() {
     }));
   }, [payments]);
 
+  const renderClientPerformanceRow = (client: typeof clientPerformance[number], index: number) => (
+    <button
+      key={client.id}
+      onClick={() => setSelectedClientId(client.id)}
+      className={cn(
+        "w-full flex items-center justify-between p-4 rounded-2xl transition-all border group",
+        selectedClientId === client.id
+          ? "bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100"
+          : "bg-gray-50 border-transparent hover:border-indigo-200"
+      )}
+    >
+      <div className="flex items-center gap-4">
+        <div className={cn(
+          "w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black",
+          selectedClientId === client.id ? "bg-white/20" : "bg-white text-indigo-600 shadow-sm"
+        )}>
+          {formatPersianNumber(index + 1)}
+        </div>
+        <div className="text-right">
+          <p className={cn("text-xs font-black", selectedClientId === client.id ? "text-white" : "text-gray-900")}>
+            {client.name}
+          </p>
+          <p className={cn("text-[9px] font-bold", selectedClientId === client.id ? "text-indigo-200" : "text-gray-400 italic")}>
+            {formatPersianNumber(client.visitCount)} جلسه بازی
+          </p>
+        </div>
+      </div>
+      <div className="text-left">
+        <p className={cn("text-xs font-black", selectedClientId === client.id ? "text-white text-sm" : "text-indigo-600")}>
+          {formatCurrency(client.totalSpend)}
+        </p>
+      </div>
+    </button>
+  );
+
   return (
     <div className="p-6 lg:p-10 space-y-8 font-sans text-right pb-32" dir="rtl">
       {/* Header */}
@@ -871,43 +926,13 @@ export default function Analytics() {
         
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto flex-wrap animate-fade-in">
           {activeSegment === 'performance' && (
-            <div className="space-y-2">
-              <div className="bg-gray-50 dark:bg-slate-800 p-1 rounded-2xl flex gap-1 border border-gray-100/50 dark:border-slate-700/50">
-                <button
-                  onClick={() => setAnalyticsMode('period')}
-                  className={cn("px-4 h-9 text-xs font-extrabold rounded-xl transition-all", analyticsMode === 'period' ? "bg-indigo-600 text-white shadow-md shadow-indigo-100/30" : "text-gray-400 hover:bg-gray-100/50 dark:hover:bg-slate-700 dark:text-gray-300")}
-                >دوره‌ای</button>
-                <button
-                  onClick={() => setAnalyticsMode('all')}
-                  className={cn("px-4 h-9 text-xs font-extrabold rounded-xl transition-all", analyticsMode === 'all' ? "bg-indigo-600 text-white shadow-md shadow-indigo-100/30" : "text-gray-400 hover:bg-gray-100/50 dark:hover:bg-slate-700 dark:text-gray-300")}
-                >آمار کل</button>
-              </div>
-              {analyticsMode === 'period' && (
-                <div className="flex items-center justify-between gap-2 rounded-xl border border-gray-100 dark:border-slate-700 px-2 py-1.5">
-                  <button
-                    type="button"
-                    aria-label="ماه قبل"
-                    title="ماه قبل"
-                    onClick={() => shiftPeriodMonth(-1)}
-                    className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-slate-700"
-                  >
-                    <ChevronRight size={16} />
-                  </button>
-                  <span className="min-w-28 text-center text-xs font-black text-gray-700 dark:text-gray-200">
-                    {formatJalali(getJalaliMonthRange(periodMonth.year, periodMonth.month).start, 'MMMM yyyy')}
-                  </span>
-                  <button
-                    type="button"
-                    aria-label="ماه بعد"
-                    title="ماه بعد"
-                    onClick={() => shiftPeriodMonth(1)}
-                    className="w-8 h-8 flex items-center justify-center rounded-lg text-gray-500 hover:bg-gray-100 dark:hover:bg-slate-700"
-                  >
-                    <ChevronLeft size={16} />
-                  </button>
-                </div>
-              )}
-            </div>
+            <AnalyticsRangeFilter
+              preset={rangePreset}
+              dates={periodDateInputs}
+              onPresetChange={setRangePreset}
+              onDatesChange={setPeriodDateInputs}
+              invalid={!periodBounds.valid}
+            />
           )}
 
           <SegmentToggle<'performance' | 'shareholders'>
@@ -1000,7 +1025,7 @@ export default function Analytics() {
                 <div className="w-10 h-10 bg-rose-100 text-rose-600 rounded-xl flex items-center justify-center dark:bg-rose-950 dark:text-rose-400">
                    <UserX size={20} />
                 </div>
-                <p className="text-xs font-black text-gray-500 dark:text-slate-400">کل مطالبات دفتری (بدهی مشتریان)</p>
+                <p className="text-xs font-black text-gray-500 dark:text-slate-400">ماندهٔ فعلی بدهی مشتریان</p>
              </div>
              <div className="flex items-end justify-between">
                 <h3 className="text-xl font-black text-rose-700 dark:text-rose-400">{formatCurrency(debtorStats.totalDebt)}</h3>
@@ -1190,7 +1215,7 @@ export default function Analytics() {
                 <TrendingUp size={24} />
               </div>
               <div>
-                <h3 className="text-lg font-black text-gray-900">روند درآمد · {formatDateRangeLabel(revenueTrendRange)}</h3>
+                <h3 className="text-lg font-black text-gray-900">روند درآمد · {selectedPeriodLabel}</h3>
                 <p className="text-xs text-gray-400 font-medium">مقایسه تفکیکی درآمد بازی، بوفه و تعمیرات</p>
               </div>
             </div>
@@ -1209,13 +1234,6 @@ export default function Analytics() {
               </div>
             </div>
           </div>
-          <DateRangeFilter
-            label="بازهٔ نمودار روند درآمد"
-            start={revenueTrendRangeInputs.start}
-            end={revenueTrendRangeInputs.end}
-            onStartChange={start => setRevenueTrendRangeInputs(current => ({ ...current, start }))}
-            onEndChange={end => setRevenueTrendRangeInputs(current => ({ ...current, end }))}
-          />
         </div>
         
         <div className="h-[400px] w-full" dir="ltr">
@@ -1364,8 +1382,8 @@ export default function Analytics() {
               <Monitor size={20} />
             </div>
             <div>
-              <h3 className="font-black text-gray-900">سودآوری بر اساس مدل کنسول</h3>
-              <p className="text-xs text-gray-400 font-medium">سهم هر مدل دستگاه از درآمد بازی‌ها</p>
+              <h3 className="font-black text-gray-900">سودآوری بر اساس نوع کنسول</h3>
+              <p className="text-xs text-gray-400 font-medium">تجمیع درآمد دستگاه‌های هم‌نوع در بازهٔ انتخابی</p>
             </div>
           </div>
           <div className="flex flex-col md:flex-row items-center justify-between gap-8">
@@ -1634,66 +1652,28 @@ export default function Analytics() {
               </div>
               <div>
                 <h3 className="font-black text-gray-900">مشتریان برتر</h3>
-                <p className="text-[10px] text-gray-400 font-bold italic">پرداختی در بازهٔ {formatDateRangeLabel(topClientsRange)}</p>
+                <p className="text-[10px] text-gray-400 font-bold italic">پرداختی در بازهٔ {selectedPeriodLabel}</p>
               </div>
             </div>
           </div>
 
-          <div className="mb-5">
-            <DateRangeFilter
-              label="بازهٔ مشتریان برتر"
-              start={topClientsRangeInputs.start}
-              end={topClientsRangeInputs.end}
-              onStartChange={start => setTopClientsRangeInputs(current => ({ ...current, start }))}
-              onEndChange={end => setTopClientsRangeInputs(current => ({ ...current, end }))}
-            />
-          </div>
-          
-          <div className="space-y-3 overflow-y-auto max-h-[600px] pr-2 custom-scrollbar">
-            {clientPerformance.slice(0, 15).map((client, idx) => (
-              <button
-                key={client.id}
-                onClick={() => {
-                  setSelectedClientId(client.id);
-                  setSelectedClientChartMonth(null);
-                }}
-                className={cn(
-                  "w-full flex items-center justify-between p-4 rounded-2xl transition-all border group",
-                  selectedClientId === client.id 
-                    ? "bg-indigo-600 border-indigo-600 text-white shadow-lg shadow-indigo-100" 
-                    : "bg-gray-50 border-transparent hover:border-indigo-200"
-                )}
-              >
-                <div className="flex items-center gap-4">
-                  <div className={cn(
-                    "w-8 h-8 rounded-lg flex items-center justify-center text-xs font-black",
-                    selectedClientId === client.id ? "bg-white/20" : "bg-white text-indigo-600 shadow-sm"
-                  )}>
-                    {formatPersianNumber(idx + 1)}
-                  </div>
-                  <div className="text-right">
-                    <p className={cn("text-xs font-black", selectedClientId === client.id ? "text-white" : "text-gray-900")}>
-                      {client.name}
-                    </p>
-                    <p className={cn("text-[9px] font-bold", selectedClientId === client.id ? "text-indigo-200" : "text-gray-400 italic")}>
-                      {formatPersianNumber(client.visitCount)} جلسه بازی
-                    </p>
-                  </div>
-                </div>
-                <div className="text-left">
-                  <p className={cn("text-xs font-black", selectedClientId === client.id ? "text-white text-sm" : "text-indigo-600")}>
-                    {formatCurrency(client.totalSpend)}
-                  </p>
-                </div>
-              </button>
-            ))}
-            {clientPerformance.length === 0 && (
-              <div className="py-20 text-center">
-                 <Users className="mx-auto text-gray-300 mb-4" size={48} />
-                 <p className="text-sm font-bold text-gray-400">{topClientsRange.valid ? 'در بازهٔ انتخابی داده‌ای یافت نشد' : 'بازهٔ انتخابی معتبر نیست'}</p>
+          {clientPerformance.length === 0 ? (
+            <div className="py-20 text-center">
+              <Users className="mx-auto text-gray-300 mb-4" size={48} />
+              <p className="text-sm font-bold text-gray-400">{periodBounds.valid ? 'در بازهٔ انتخابی داده‌ای یافت نشد' : 'بازهٔ انتخابی معتبر نیست'}</p>
+            </div>
+          ) : (
+            <>
+              <div className="space-y-3">
+                {clientPerformance.slice(0, 3).map((client, index) => renderClientPerformanceRow(client, index))}
               </div>
-            )}
-          </div>
+              {clientPerformance.length > 3 && (
+                <div className="mt-3 max-h-[360px] space-y-3 overflow-y-auto pr-2 custom-scrollbar" aria-label="سایر مشتریان برتر">
+                  {clientPerformance.slice(3, 15).map((client, index) => renderClientPerformanceRow(client, index + 3))}
+                </div>
+              )}
+            </>
+          )}
         </Card>
 
         {/* Selected Customer Deep Dive Chart */}
@@ -1749,7 +1729,7 @@ export default function Analytics() {
                    
                    <div className="grid grid-cols-2 gap-4 w-full md:w-auto">
                       <div className="bg-white/5 p-4 rounded-2xl border border-white/5 text-center">
-                         <p className="text-[9px] text-gray-400 font-bold mb-1 uppercase">کل سودآوری</p>
+                         <p className="text-[9px] text-gray-400 font-bold mb-1 uppercase">هزینه‌کرد در بازه</p>
                          <p className="text-lg font-black text-emerald-400">{formatCurrency(clientPerformance.find(c => c.id === selectedClientId)?.totalSpend || 0)}</p>
                       </div>
                       <div className="bg-white/5 p-4 rounded-2xl border border-white/5 text-center">
@@ -1765,20 +1745,7 @@ export default function Analytics() {
                         <TrendingUp size={14} />
                         روند روزانهٔ حضور و هزینه‌کرد
                      </h4>
-                     <label className="flex items-center gap-2 text-[11px] font-bold text-slate-300" htmlFor="customer-chart-month">
-                       دورهٔ نمودار
-                       <select
-                         id="customer-chart-month"
-                         value={selectedClientChartMonthKey}
-                         onChange={event => setSelectedClientChartMonth(event.target.value)}
-                         dir="rtl"
-                         className="h-10 min-w-36 rounded-xl border border-white/10 bg-slate-800 px-3 text-xs font-bold text-white outline-none focus:border-indigo-400"
-                       >
-                         {clientChartMonthOptions.map(option => (
-                           <option key={option.key} value={option.key}>{option.label}</option>
-                         ))}
-                       </select>
-                     </label>
+                     <span className="text-[10px] font-bold text-slate-400">{selectedPeriodLabel}</span>
                    </div>
                    <div className="h-[320px] w-full" dir="ltr">
                       <ResponsiveContainer width="100%" height="100%" minWidth={0} minHeight={0}>
@@ -2001,3 +1968,4 @@ export default function Analytics() {
     </div>
   );
 }
+
