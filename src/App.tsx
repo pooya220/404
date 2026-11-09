@@ -1,5 +1,5 @@
 import { apiRequest, triggerDatabaseRefresh } from './hooks/useFirestore';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -228,96 +228,20 @@ function DatabaseStatusControl({
   );
 }
 
-function SettingsMenuControl({
-  items,
-  isSelected,
+function SettingsPageControl({
   onNavigate
 }: {
-  items: Array<{ to: string; icon: any; label: string }>;
-  isSelected: (to: string) => boolean;
   onNavigate?: () => void;
 }) {
-  const [isOpen, setIsOpen] = useState(false);
-  const menuRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!isOpen) return;
-    const closeOnOutsideClick = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) setIsOpen(false);
-    };
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') setIsOpen(false);
-    };
-    document.addEventListener('mousedown', closeOnOutsideClick);
-    document.addEventListener('keydown', closeOnEscape);
-    return () => {
-      document.removeEventListener('mousedown', closeOnOutsideClick);
-      document.removeEventListener('keydown', closeOnEscape);
-    };
-  }, [isOpen]);
-
   return (
-    <div className="relative flex-1" ref={menuRef}>
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0, y: 8, scale: 0.98 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 8, scale: 0.98 }}
-            transition={{ duration: 0.16 }}
-            className="absolute bottom-full right-0 mb-2 w-64 max-w-[calc(100vw-4rem)] rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 shadow-2xl z-[60]"
-          >
-            <div className="px-3 py-2 mb-1 border-b border-slate-100 dark:border-slate-800">
-              <p className="text-xs font-black text-slate-900 dark:text-white">پیکربندی سیستم</p>
-              <p className="text-[10px] font-bold text-slate-400 mt-1">انتخاب بخش تنظیمات</p>
-            </div>
-            <div className="space-y-1 max-h-72 overflow-y-auto">
-              {items.map(item => {
-                const Icon = item.icon;
-                const active = isSelected(item.to);
-                return (
-                  <Link
-                    key={item.to}
-                    to={item.to}
-                    onClick={() => {
-                      setIsOpen(false);
-                      onNavigate?.();
-                    }}
-                    className={cn(
-                      "flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-colors",
-                      active
-                        ? "bg-indigo-600 text-white"
-                        : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
-                    )}
-                  >
-                    <Icon size={15} className="shrink-0" />
-                    <span>{item.label}</span>
-                  </Link>
-                );
-              })}
-              {items.length === 0 && (
-                <p className="px-3 py-4 text-center text-[11px] font-bold text-slate-400">بخش تنظیماتی در دسترس نیست.</p>
-              )}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-      <button
-        type="button"
-        onClick={() => setIsOpen(value => !value)}
-        aria-expanded={isOpen}
-        className={cn(
-          "w-full h-10 rounded-xl border flex items-center justify-center gap-2 text-xs font-black transition-colors",
-          isOpen
-            ? "bg-indigo-600 text-white border-indigo-600"
-            : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-indigo-50 hover:text-indigo-700 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-indigo-950/50 dark:hover:text-indigo-300"
-        )}
-      >
+    <Link
+      to="/settings?tab=general"
+      onClick={onNavigate}
+      className="flex-1 h-10 rounded-xl border flex items-center justify-center gap-2 text-xs font-black transition-colors bg-slate-50 text-slate-700 border-slate-200 hover:bg-indigo-50 hover:text-indigo-700 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-indigo-950/50 dark:hover:text-indigo-300"
+    >
         <SettingsIcon size={16} />
         <span>تنظیمات</span>
-        <ChevronDown size={13} className={cn("transition-transform", isOpen && "rotate-180")} />
-      </button>
-    </div>
+    </Link>
   );
 }
 
@@ -445,9 +369,6 @@ function Layout({ onLogout, children, currentUser }: { onLogout: () => void, chi
       allowedPaths.push('/user-dashboard');
     }
   }
-
-  const settingsMenuItems = rawGroups.find(g => g.id === 'settings')?.items
-    .filter(() => allowedPaths.includes('/settings')) || [];
 
   const groups = rawGroups.filter(g => g.id !== 'settings').map(g => {
     return {
@@ -603,15 +524,13 @@ function Layout({ onLogout, children, currentUser }: { onLogout: () => void, chi
               </button>
             </div>
             <div className="mt-3 pt-3 border-t border-slate-200/70 dark:border-slate-800/70 flex items-center gap-2">
+              {allowedPaths.includes('/settings') && <SettingsPageControl />}
               <DatabaseStatusControl
                 status={dbStatus.status}
                 details={dbStatus.details}
                 isRefreshing={dbStatus.isRefreshing}
                 onRefresh={handleDatabaseRefresh}
               />
-              {allowedPaths.includes('/settings') && (
-                <SettingsMenuControl items={settingsMenuItems} isSelected={isSelected} />
-              )}
             </div>
           </div>
         </div>
@@ -739,19 +658,15 @@ function Layout({ onLogout, children, currentUser }: { onLogout: () => void, chi
                     </button>
                   </div>
                   <div className="mt-3 pt-3 border-t border-slate-200/70 dark:border-slate-800/70 flex items-center gap-2">
+                    {allowedPaths.includes('/settings') && (
+                      <SettingsPageControl onNavigate={() => setIsSidebarOpen(false)} />
+                    )}
                     <DatabaseStatusControl
                       status={dbStatus.status}
                       details={dbStatus.details}
                       isRefreshing={dbStatus.isRefreshing}
                       onRefresh={handleDatabaseRefresh}
                     />
-                    {allowedPaths.includes('/settings') && (
-                      <SettingsMenuControl
-                        items={settingsMenuItems}
-                        isSelected={isSelected}
-                        onNavigate={() => setIsSidebarOpen(false)}
-                      />
-                    )}
                   </div>
                 </div>
               </div>
