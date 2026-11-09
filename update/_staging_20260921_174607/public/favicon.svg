@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4338ca"/>
+      <stop offset="50%" stop-color="#4f46e5"/>
+      <stop offset="100%" stop-color="#312e81"/>
+    </linearGradient>
+    <linearGradient id="controller" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="100%" stop-color="#e0e7ff"/>
+    </linearGradient>
+    <filter id="shadow" x="-10%" y="-10%" width="120%" height="120%">
+      <feDropShadow dx="0" dy="2" stdDeviation="1.5" flood-color="#000000" flood-opacity="0.35"/>
+    </filter>
+  </defs>
+
+  <!-- Background squircle for browser tabs -->
+  <rect x="2" y="2" width="60" height="60" rx="15" fill="url(#bg)" stroke="#6366f1" stroke-width="1.5"/>
+
+  <!-- High-contrast Gamepad Body -->
+  <g filter="url(#shadow)">
+    <!-- Main Controller Outline -->
+    <path fill="url(#controller)" d="M19 20 C14 20 11 23 11 29 L12 40 C12.5 45.5 17 48 21.5 44.5 L26 40 C28 38.5 30 38 32 38 C34 38 36 38.5 38 40 L42.5 44.5 C47 48 51.5 45.5 52 40 L53 29 C53 23 50 20 45 20 C38 20 35 22.5 32 22.5 C29 22.5 26 20 19 20 Z" />
+
+    <!-- D-Pad (Left Side) -->
+    <path fill="#4f46e5" d="M20 26 h4 v2 h-4 z"/>
+    <path fill="#4f46e5" d="M20 32 h4 v2 h-4 z"/>
+    <path fill="#4f46e5" d="M17 29 h10 v2 h-10 z"/>
+    <circle cx="22" cy="30" r="1.5" fill="#312e81"/>
+
+    <!-- Action Buttons (Right Side) -->
+    <circle cx="42" cy="27" r="2" fill="#ef4444"/>
+    <circle cx="45" cy="30" r="2" fill="#10b981"/>
+    <circle cx="39" cy="30" r="2" fill="#3b82f6"/>
+    <circle cx="42" cy="33" r="2" fill="#f59e0b"/>
+
+    <!-- Center LED Indicator / Power Dot -->
+    <circle cx="32" cy="28" r="1.8" fill="#10b981"/>
+  </g>
+</svg>

@@ -1,0 +1,34 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#4f46e5"/>
+      <stop offset="100%" stop-color="#312e81"/>
+    </linearGradient>
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="2" stdDeviation="2" flood-color="#000000" flood-opacity="0.3"/>
+    </filter>
+  </defs>
+  <!-- Background Squircle -->
+  <rect width="64" height="64" rx="16" fill="url(#g)"/>
+  
+  <!-- Sleek Gamepad Controller Silhouette -->
+  <g fill="#ffffff" filter="url(#glow)">
+    <!-- Controller Body -->
+    <path d="M18 23 C14 23 11 26 12 32 L13 41 C13.5 45 17 47 21 44 L26 39 C28 38 30 38 32 38 C34 38 36 38 38 39 L43 44 C47 47 50.5 45 51 41 L52 32 C53 26 50 23 46 23 Z" />
+    
+    <!-- D-Pad (Left Side) - Indigo cutouts -->
+    <path fill="#4f46e5" d="M21 27 h4 v2 h-4 z"/>
+    <path fill="#4f46e5" d="M21 31 h4 v2 h-4 z"/>
+    <path fill="#4f46e5" d="M19 29 h8 v2 h-8 z"/>
+    <rect x="22" y="28" width="2" height="4" fill="#312e81"/>
+
+    <!-- Action Buttons (Right Side) -->
+    <circle cx="43" cy="27" r="1.5" fill="#ef4444"/>
+    <circle cx="46" cy="30" r="1.5" fill="#10b981"/>
+    <circle cx="40" cy="30" r="1.5" fill="#3b82f6"/>
+    <circle cx="43" cy="33" r="1.5" fill="#f59e0b"/>
+
+    <!-- Center Status / Power Pill -->
+    <rect x="30" y="29" width="4" height="2" rx="1" fill="#4f46e5"/>
+  </g>
+</svg>

@@ -1,0 +1,8 @@
+{
+  "name": "GameNet Plus Manager",
+  "description": "نرم‌افزار جامع مدیریت گیم‌نت شامل رزرو کنسول، فروشگاه نوشیدنی و سیستم سطح‌بندی مشتریان.",
+  "requestFramePermissions": [],
+  "majorCapabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

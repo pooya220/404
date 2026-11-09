@@ -1,0 +1,2103 @@
+{
+  "timestamp": "2026-09-18T12:32:16.554Z",
+  "version": "1.0",
+  "data": {
+    "consoles": [
+      {
+        "name": "PS4",
+        "type": "PS4",
+        "status": "idle",
+        "id": "qi26xw299"
+      },
+      {
+        "name": "PS4",
+        "type": "PS4",
+        "status": "idle",
+        "id": "kv11vbm6e"
+      },
+      {
+        "name": "PS5",
+        "type": "PS5",
+        "status": "idle",
+        "id": "wfomscw8o"
+      }
+    ],
+    "points_festivals": [
+      {
+        "id": "fest_1",
+        "title": "خرید نقدی یا اعتباری کلوپ",
+        "points": "هر ۱۰۰,۰۰۰ ریال معادل ۱ امتیاز",
+        "description": "به صورت خودکار با ثبت فاکتور خرید در سیستم اعمال می‌شود.",
+        "isFixed": true,
+        "isActive": true
+      },
+      {
+        "id": "fest_2",
+        "title": "حضور و بازی در ایستگاه‌ها",
+        "points": "هر ۳۰ دقیقه بازی ۱.۵ امتیاز",
+        "description": "به صورت خودکار با ثبت تایم کنسول یا بردگیم در سیستم اعمال می‌شود.",
+        "isFixed": true,
+        "isActive": true
+      },
+      {
+        "id": "fest_3",
+        "title": "شرکت در مینی‌گیم‌های هفتگی",
+        "points": "کسب رتبه‌های ۱ تا ۳ تا ۲۰ امتیاز",
+        "description": "توسط ادمین کلوب در زمان قرعه‌کشی یا مسابقات اعمال می‌شود.",
+        "isFixed": true,
+        "isActive": true
+      }
+    ],
+    "fixed_expenses": [
+      {
+        "title": "برق",
+        "createdAt": "2026-09-11T11:30:45.118Z",
+        "id": "nu59ycrba"
+      },
+      {
+        "title": "گاز",
+        "createdAt": "2026-09-11T11:30:50.278Z",
+        "id": "55dxe7e6l"
+      },
+      {
+        "title": "اجاره",
+        "createdAt": "2026-09-11T11:30:59.000Z",
+        "id": "vjdrkbntn"
+      },
+      {
+        "title": "تلفن ",
+        "createdAt": "2026-09-11T11:31:09.286Z",
+        "id": "xpmg5yu4n"
+      },
+      {
+        "title": "اینترنت",
+        "createdAt": "2026-09-11T11:31:14.714Z",
+        "id": "ud2hfy8l6"
+      },
+      {
+        "title": "اب",
+        "createdAt": "2026-09-11T11:31:26.268Z",
+        "id": "2qx4v53gm"
+      }
+    ],
+    "system_users": [
+      {
+        "username": "sefidoo",
+        "fullName": "امیر سفیده",
+        "password": "09339596112",
+        "role": "client",
+        "phone": "09339596112",
+        "isActive": true,
+        "clientId": "gjmj4x9xe",
+        "createdAt": "2026-09-09T17:12:19.655Z",
+        "id": "ffdgdnnl5"
+      },
+      {
+        "username": "active",
+        "fullName": "ممد فعال",
+        "password": "09039277409",
+        "role": "client",
+        "phone": "09039277409",
+        "isActive": true,
+        "clientId": "mgt88ro6i",
+        "createdAt": "2026-09-09T17:13:50.469Z",
+        "id": "2lrxr8fmz"
+      },
+      {
+        "username": "niga",
+        "fullName": "متی نیگا",
+        "password": "09912344283",
+        "role": "client",
+        "phone": "09912344283",
+        "isActive": true,
+        "clientId": "prlls0ws3",
+        "createdAt": "2026-09-09T17:22:25.630Z",
+        "id": "2fap58rhg"
+      },
+      {
+        "username": "dhn srv",
+        "fullName": "امیر دهن سرویس",
+        "password": "09309929133",
+        "role": "client",
+        "phone": "09309929133",
+        "isActive": true,
+        "clientId": "vqez2acra",
+        "createdAt": "2026-09-11T11:40:32.834Z",
+        "id": "u97xttrts"
+      },
+      {
+        "username": "pooya",
+        "fullName": "پویا",
+        "password": "09198994272",
+        "role": "client",
+        "phone": "09198994272",
+        "isActive": true,
+        "clientId": "w8v9frqjp",
+        "createdAt": "2026-09-11T11:41:20.482Z",
+        "id": "ydd06ecse"
+      },
+      {
+        "username": "mmd",
+        "fullName": "ممد",
+        "password": "09300256836",
+        "role": "client",
+        "phone": "09300256836",
+        "isActive": true,
+        "clientId": "e5x9ctglw",
+        "createdAt": "2026-09-11T11:41:46.447Z",
+        "id": "9rlte4fhk"
+      },
+      {
+        "username": "dabe",
+        "fullName": "حسین",
+        "password": "09120572733",
+        "role": "client",
+        "phone": "09120572733",
+        "isActive": true,
+        "clientId": "f5zhsdzq9",
+        "createdAt": "2026-09-11T11:42:09.866Z",
+        "id": "x3i2ckhpv"
+      },
+      {
+        "username": "meri",
+        "fullName": "مهرشاد",
+        "password": "09126937243",
+        "role": "client",
+        "phone": "09126937243",
+        "isActive": true,
+        "clientId": "gp6qomv4s",
+        "createdAt": "2026-09-11T20:03:58.971Z",
+        "id": "bpt8hdf16"
+      },
+      {
+        "username": "taher",
+        "fullName": "طاهر کریمی",
+        "password": "09335398251",
+        "role": "client",
+        "phone": "09335398251",
+        "isActive": true,
+        "clientId": "b1yoq82h7",
+        "createdAt": "2026-09-14T16:24:01.152Z",
+        "id": "fwhhxcdyw"
+      },
+      {
+        "username": "az",
+        "fullName": "ارین",
+        "password": "09101934463",
+        "role": "client",
+        "phone": "09101934463",
+        "isActive": true,
+        "clientId": "xzltm20nt",
+        "createdAt": "2026-09-17T20:04:09.723Z",
+        "id": "amr7h4g7h"
+      }
+    ],
+    "sessions": [
+      {
+        "consoleId": "qi26xw299",
+        "userId": "y99c9f4ev",
+        "userIds": [
+          "y99c9f4ev"
+        ],
+        "tariffId": "hgf8nzpm0",
+        "startTime": "2026-09-10T19:14:58.601Z",
+        "lastResumeTime": "2026-09-10T19:14:58.601Z",
+        "accumulatedSeconds": 6155,
+        "isPaused": true,
+        "status": "completed",
+        "addedItems": [],
+        "limitType": "time",
+        "limitValue": 86,
+        "isAlarmTriggered": true,
+        "id": "r73hcivgt",
+        "pausedAt": "2026-09-10T20:57:33.265Z",
+        "endTime": "2026-09-11T11:20:26.894Z",
+        "splitUserIds": [
+          "y99c9f4ev"
+        ],
+        "splitCount": 1,
+        "costPerUser": 205167,
+        "pointsPerUser": 116,
+        "totalSessionAmount": 205167,
+        "totalProductsAmount": 0,
+        "tierDiscountAmount": 0,
+        "promoDiscountAmount": 0,
+        "promoName": "",
+        "taxAmount": 0,
+        "totalCost": 205167,
+        "duration": 6155,
+        "paymentMethod": "card"
+      },
+      {
+        "consoleId": "wfomscw8o",
+        "userId": "y99c9f4ev",
+        "userIds": [
+          "y99c9f4ev"
+        ],
+        "tariffId": "ot2wkmpqt",
+        "startTime": "2026-09-11T11:39:05.347Z",
+        "lastResumeTime": "2026-09-11T11:39:05.347Z",
+        "accumulatedSeconds": 0,
+        "isPaused": false,
+        "status": "completed",
+        "addedItems": [],
+        "limitType": "none",
+        "limitValue": 0,
+        "isAlarmTriggered": false,
+        "id": "6qpxu6tkd",
+        "endTime": "2026-09-11T11:39:13.939Z",
+        "splitUserIds": [
+          "y99c9f4ev"
+        ],
+        "splitCount": 1,
+        "costPerUser": 114,
+        "pointsPerUser": 0,
+        "totalSessionAmount": 112,
+        "totalProductsAmount": 0,
+        "tierDiscountAmount": 0,
+        "promoDiscountAmount": 0,
+        "promoName": "",
+        "taxAmount": 2,
+        "totalCost": 114,
+        "duration": 2.528,
+        "paymentMethod": "card"
+      },
+      {
+        "consoleId": "qi26xw299",
+        "userId": "y99c9f4ev",
+        "userIds": [
+          "y99c9f4ev"
+        ],
+        "tariffId": "hgf8nzpm0",
+        "startTime": "2026-09-11T16:09:26.402Z",
+        "lastResumeTime": "2026-09-11T16:09:26.402Z",
+        "accumulatedSeconds": 0,
+        "isPaused": false,
+        "status": "completed",
+        "addedItems": [],
+        "limitType": "none",
+        "limitValue": 0,
+        "isAlarmTriggered": false,
+        "id": "mgmest5u3",
+        "endTime": "2026-09-11T17:13:43.389Z",
+        "splitUserIds": [
+          "y99c9f4ev"
+        ],
+        "splitCount": 1,
+        "costPerUser": 131033,
+        "pointsPerUser": 72,
+        "totalSessionAmount": 128464,
+        "totalProductsAmount": 0,
+        "tierDiscountAmount": 0,
+        "promoDiscountAmount": 0,
+        "promoName": "",
+        "taxAmount": 2569,
+        "totalCost": 131033,
+        "duration": 3853.928,
+        "paymentMethod": "card"
+      },
+      {
+        "consoleId": "wfomscw8o",
+        "userId": "prlls0ws3",
+        "userIds": [
+          "prlls0ws3"
+        ],
+        "tariffId": "ot2wkmpqt",
+        "startTime": "2026-09-11T17:13:32.155Z",
+        "lastResumeTime": "2026-09-11T17:13:32.155Z",
+        "accumulatedSeconds": 4877,
+        "isPaused": true,
+        "status": "completed",
+        "addedItems": [],
+        "limitType": "none",
+        "limitValue": 0,
+        "isAlarmTriggered": false,
+        "id": "ylas40128",
+        "pausedAt": "2026-09-11T18:34:49.453Z",
+        "endTime": "2026-09-11T18:35:52.615Z",
+        "splitUserIds": [
+          "prlls0ws3"
+        ],
+        "splitCount": 1,
+        "costPerUser": 221091,
+        "pointsPerUser": 114,
+        "totalSessionAmount": 216756,
+        "totalProductsAmount": 0,
+        "tierDiscountAmount": 0,
+        "promoDiscountAmount": 0,
+        "promoName": "",
+        "taxAmount": 4335,
+        "totalCost": 221091,
+        "duration": 4877,
+        "paymentMethod": "card"
+      },
+      {
+        "consoleId": "wfomscw8o",
+        "userId": "mgt88ro6i",
+        "userIds": [
+          "mgt88ro6i"
+        ],
+        "tariffId": "ot2wkmpqt",
+        "startTime": "2026-09-11T18:36:21.807Z",
+        "lastResumeTime": "2026-09-11T19:58:26.081Z",
+        "accumulatedSeconds": 6826,
+        "isPaused": true,
+        "status": "completed",
+        "addedItems": [],
+        "limitType": "none",
+        "limitValue": 0,
+        "isAlarmTriggered": false,
+        "id": "epl95p63r",
+        "pausedAt": "2026-09-11T20:34:38.018Z",
+        "endTime": "2026-09-11T20:38:22.641Z",
+        "splitUserIds": [
+          "mgt88ro6i"
+        ],
+        "splitCount": 1,
+        "costPerUser": 309446,
+        "pointsPerUser": 160,
+        "totalSessionAmount": 303378,
+        "totalProductsAmount": 0,
+        "tierDiscountAmount": 0,
+        "promoDiscountAmount": 0,
+        "promoName": "",
+        "taxAmount": 6068,
+        "totalCost": 309446,
+        "duration": 6826,
+        "paymentMethod": "card"
+      },
+      {
+        "consoleId": "kv11vbm6e",
+        "userId": "prlls0ws3",
+        "userIds": [
+          "prlls0ws3",
+          "gp6qomv4s"
+        ],
+        "tariffId": "cwt4yr6z0",
+        "startTime": "2026-09-11T18:36:41.643Z",
+        "lastResumeTime": "2026-09-11T20:06:41.380Z",
+        "accumulatedSeconds": 4387,
+        "isPaused": false,
+        "status": "completed",
+        "addedItems": [],
+        "limitType": "none",
+        "limitValue": 0,
+        "isAlarmTriggered": false,
+        "id": "edwtsjyu6",
+        "pausedAt": null,
+        "endTime": "2026-09-11T21:00:03.983Z",
+        "splitUserIds": [
+          "prlls0ws3",
+          "gp6qomv4s"
+        ],
+        "splitCount": 2,
+        "costPerUser": 167933,
+        "pointsPerUser": 87,
+        "totalSessionAmount": 329279,
+        "totalProductsAmount": 0,
+        "tierDiscountAmount": 0,
+        "promoDiscountAmount": 0,
+        "promoName": "",
+        "taxAmount": 6586,
+        "totalCost": 335865,
+        "duration": 7408.7880000000005,
+        "paymentMethod": "card"
+      },
+      {
+        "consoleId": "qi26xw299",
+        "userId": "y99c9f4ev",
+        "userIds": [
+          "y99c9f4ev"
+        ],
+        "tariffId": "rmam81rv1",
+        "startTime": "2026-09-11T18:52:46.327Z",
+        "lastResumeTime": "2026-09-11T18:52:46.327Z",
+        "accumulatedSeconds": 0,
+        "isPaused": false,
+        "status": "completed",
+        "addedItems": [],
+        "limitType": "none",
+        "limitValue": 0,
+        "isAlarmTriggered": false,
+        "id": "x3t3iknfi",
+        "endTime": "2026-09-11T18:53:02.115Z",
+        "splitUserIds": [
+          "y99c9f4ev"
+        ],
+        "splitCount": 1,
+        "costPerUser": 375,
+        "pointsPerUser": 0,
+        "totalSessionAmount": 368,
+        "totalProductsAmount": 0,
+        "tierDiscountAmount": 0,
+        "promoDiscountAmount": 0,
+        "promoName": "",
+        "taxAmount": 7,
+        "totalCost": 375,
+        "duration": 13.258,
+        "paymentMethod": "card"
+      },
+      {
+        "consoleId": "qi26xw299",
+        "userId": "y99c9f4ev",
+        "userIds": [
+          "y99c9f4ev"
+        ],
+        "tariffId": "hgf8nzpm0",
+        "startTime": "2026-09-12T13:27:29.594Z",
+        "lastResumeTime": "2026-09-12T13:27:29.594Z",
+        "accumulatedSeconds": 0,
+        "isPaused": false,
+        "status": "completed",
+        "addedItems": [],
+        "limitType": "none",
+        "limitValue": 0,
+        "isAlarmTriggered": false,
+        "id": "8t251bo9b",
+        "endTime": "2026-09-12T14:35:32.403Z",
+        "splitUserIds": [
+          "y99c9f4ev"
+        ],
+        "splitCount": 1,
+        "costPerUser": 136573,
+        "pointsPerUser": 76,
+        "totalSessionAmount": 133895,
+        "totalProductsAmount": 0,
+        "tierDiscountAmount": 0,
+        "promoDiscountAmount": 0,
+        "promoName": "",
+        "taxAmount": 2678,
+        "totalCost": 136573,
+        "duration": 4016.837,
+        "paymentMethod": "card"
+      },
+      {
+        "consoleId": "qi26xw299",
+        "userId": "y99c9f4ev",
+        "userIds": [
+          "y99c9f4ev"
+        ],
+        "tariffId": "hgf8nzpm0",
+        "startTime": "2026-09-12T16:23:31.888Z",
+        "lastResumeTime": "2026-09-12T16:23:31.888Z",
+        "accumulatedSeconds": 0,
+        "isPaused": false,
+        "status": "completed",
+        "addedItems": [],
+        "limitType": "none",
+        "limitValue": 0,
+        "isAlarmTriggered": false,
+        "id": "9voy31ohm",
+        "endTime": "2026-09-12T17:30:33.687Z",
+        "splitUserIds": [
+          "y99c9f4ev"
+        ],
+        "splitCount": 1,
+        "costPerUser": 134955,
+        "pointsPerUser": 74,
+        "totalSessionAmount": 132309,
+        "totalProductsAmount": 0,
+        "tierDiscountAmount": 0,
+        "promoDiscountAmount": 0,
+        "promoName": "",
+        "taxAmount": 2646,
+        "totalCost": 134955,
+        "duration": 3969.255,
+        "paymentMethod": "card"
+      },
+      {
+        "consoleId": "qi26xw299",
+        "userId": "y99c9f4ev",
+        "userIds": [
+          "y99c9f4ev"
+        ],
+        "tariffId": "hgf8nzpm0",
+        "startTime": "2026-09-13T14:00:41.897Z",
+        "lastResumeTime": "2026-09-13T14:00:41.897Z",
+        "accumulatedSeconds": 7332,
+        "isPaused": true,
+        "status": "completed",
+        "addedItems": [],
+        "limitType": "time",
+        "limitValue": 60,
+        "isAlarmTriggered": true,
+        "id": "0tu5pds48",
+        "pausedAt": "2026-09-13T16:02:54.021Z",
+        "endTime": "2026-09-13T16:04:57.449Z",
+        "splitUserIds": [
+          "y99c9f4ev"
+        ],
+        "splitCount": 1,
+        "costPerUser": 244400,
+        "pointsPerUser": 136,
+        "totalSessionAmount": 244400,
+        "totalProductsAmount": 0,
+        "tierDiscountAmount": 0,
+        "promoDiscountAmount": 0,
+        "promoName": "",
+        "taxAmount": 0,
+        "totalCost": 244400,
+        "duration": 7332,
+        "paymentMethod": "card"
+      },
+      {
+        "consoleId": "wfomscw8o",
+        "userId": "y99c9f4ev",
+        "userIds": [
+          "y99c9f4ev"
+        ],
+        "tariffId": "ot2wkmpqt",
+        "startTime": "2026-09-13T14:33:07.848Z",
+        "lastResumeTime": "2026-09-13T14:33:07.848Z",
+        "accumulatedSeconds": 5346,
+        "isPaused": true,
+        "status": "completed",
+        "addedItems": [],
+        "limitType": "none",
+        "limitValue": 0,
+        "isAlarmTriggered": false,
+        "id": "z0b5kj29w",
+        "pausedAt": "2026-09-13T16:02:13.886Z",
+        "endTime": "2026-09-13T16:05:07.265Z",
+        "splitUserIds": [
+          "y99c9f4ev"
+        ],
+        "splitCount": 1,
+        "costPerUser": 237600,
+        "pointsPerUser": 122,
+        "totalSessionAmount": 237600,
+        "totalProductsAmount": 0,
+        "tierDiscountAmount": 0,
+        "promoDiscountAmount": 0,
+        "promoName": "",
+        "taxAmount": 0,
+        "totalCost": 237600,
+        "duration": 5346,
+        "paymentMethod": "card"
+      },
+      {
+        "consoleId": "wfomscw8o",
+        "userId": "mgt88ro6i",
+        "userIds": [
+          "mgt88ro6i"
+        ],
+        "tariffId": "7xc00vn0l",
+        "startTime": "2026-09-13T17:57:18.757Z",
+        "lastResumeTime": "2026-09-13T18:22:53.581Z",
+        "accumulatedSeconds": 4254,
+        "isPaused": true,
+        "status": "completed",
+        "addedItems": [],
+        "limitType": "none",
+        "limitValue": 0,
+        "isAlarmTriggered": false,
+        "id": "qx6iz0k4x",
+        "pausedAt": "2026-09-13T19:13:26.981Z",
+        "tariffHistory": [
+          {
+            "tariffId": "9v8om4pob",
+            "tariffName": "سه نفره 5",
+            "pricePerHour": 180000,
+            "startTime": "2026-09-13T17:57:18.757Z",
+            "endTime": "2026-09-13T19:12:02.184Z",
+            "durationSeconds": 4483.427,
+            "cost": 224171
+          },
+          {
+            "tariffId": "7xc00vn0l",
+            "tariffName": "چهار نفره 5",
+            "pricePerHour": 200000,
+            "startTime": "2026-09-13T19:12:02.184Z",
+            "endTime": "2026-09-13T19:12:09.923Z",
+            "durationSeconds": 7.739,
+            "cost": 430
+          },
+          {
+            "tariffId": "9v8om4pob",
+            "tariffName": "سه نفره 5",
+            "pricePerHour": 180000,
+            "startTime": "2026-09-13T19:12:09.923Z",
+            "endTime": "2026-09-13T19:12:22.949Z",
+            "durationSeconds": 13.026,
+            "cost": 651
+          },
+          {
+            "tariffId": "9v8om4pob",
+            "tariffName": "سه نفره 5",
+            "pricePerHour": 180000,
+            "startTime": "2026-09-13T19:12:22.949Z",
+            "endTime": "2026-09-13T19:13:13.537Z",
+            "durationSeconds": 50.588,
+            "cost": 2529
+          }
+        ],
+        "endTime": "2026-09-13T19:13:48.445Z",
+        "splitUserIds": [
+          "mgt88ro6i"
+        ],
+        "splitCount": 1,
+        "costPerUser": 473396,
+        "pointsPerUser": 236,
+        "totalSessionAmount": 464114,
+        "totalProductsAmount": 0,
+        "tierDiscountAmount": 0,
+        "promoDiscountAmount": 0,
+        "promoName": "",
+        "taxAmount": 9282,
+        "totalCost": 473396,
+        "duration": 8808.779999999999,
+        "paymentMethod": "card"
+      },
+      {
+        "consoleId": "qi26xw299",
+        "userId": "b1yoq82h7",
+        "userIds": [
+          "b1yoq82h7"
+        ],
+        "tariffId": "hgf8nzpm0",
+        "startTime": "2026-09-14T15:22:12.557Z",
+        "lastResumeTime": "2026-09-14T15:22:12.557Z",
+        "accumulatedSeconds": 3611,
+        "isPaused": true,
+        "status": "completed",
+        "addedItems": [],
+        "limitType": "time",
+        "limitValue": 60,
+        "isAlarmTriggered": true,
+        "id": "7an1yc2ub",
+        "pausedAt": "2026-09-14T16:22:23.713Z",
+        "endTime": "2026-09-14T16:24:21.025Z",
+        "splitUserIds": [
+          "b1yoq82h7"
+        ],
+        "splitCount": 1,
+        "costPerUser": 120367,
+        "pointsPerUser": 68,
+        "totalSessionAmount": 120367,
+        "totalProductsAmount": 0,
+        "tierDiscountAmount": 0,
+        "promoDiscountAmount": 0,
+        "promoName": "",
+        "taxAmount": 0,
+        "totalCost": 120367,
+        "duration": 3611,
+        "paymentMethod": "card"
+      },
+      {
+        "consoleId": "qi26xw299",
+        "userId": "y99c9f4ev",
+        "userIds": [
+          "y99c9f4ev"
+        ],
+        "tariffId": "rmam81rv1",
+        "startTime": "2026-09-15T15:08:57.189Z",
+        "lastResumeTime": "2026-09-15T15:08:57.189Z",
+        "accumulatedSeconds": 3603,
+        "isPaused": true,
+        "status": "completed",
+        "addedItems": [],
+        "limitType": "time",
+        "limitValue": 60,
+        "isAlarmTriggered": true,
+        "id": "4m0mz1ygi",
+        "pausedAt": "2026-09-15T16:09:00.218Z",
+        "endTime": "2026-09-15T16:09:09.516Z",
+        "splitUserIds": [
+          "y99c9f4ev"
+        ],
+        "splitCount": 1,
+        "costPerUser": 100083,
+        "pointsPerUser": 60,
+        "totalSessionAmount": 100083,
+        "totalProductsAmount": 0,
+        "tierDiscountAmount": 0,
+        "promoDiscountAmount": 0,
+        "promoName": "",
+        "taxAmount": 0,
+        "totalCost": 100083,
+        "duration": 3603,
+        "paymentMethod": "card"
+      },
+      {
+        "consoleId": "kv11vbm6e",
+        "userId": "y99c9f4ev",
+        "userIds": [
+          "y99c9f4ev"
+        ],
+        "tariffId": "hgf8nzpm0",
+        "startTime": "2026-09-15T15:20:20.320Z",
+        "lastResumeTime": "2026-09-15T15:20:20.320Z",
+        "accumulatedSeconds": 3405,
+        "isPaused": true,
+        "status": "completed",
+        "addedItems": [
+          {
+            "productId": "4t7f36qw9",
+            "name": "اب معدنی زمزم",
+            "price": 20000,
+            "quantity": 1
+          }
+        ],
+        "limitType": "none",
+        "limitValue": 0,
+        "isAlarmTriggered": false,
+        "id": "8wvat21aj",
+        "pausedAt": "2026-09-15T16:17:04.846Z",
+        "endTime": "2026-09-15T16:18:00.159Z",
+        "splitUserIds": [
+          "y99c9f4ev"
+        ],
+        "splitCount": 1,
+        "costPerUser": 136170,
+        "pointsPerUser": 72,
+        "totalSessionAmount": 113500,
+        "totalProductsAmount": 20000,
+        "tierDiscountAmount": 0,
+        "promoDiscountAmount": 0,
+        "promoName": "",
+        "taxAmount": 2670,
+        "totalCost": 136170,
+        "duration": 3405,
+        "paymentMethod": "card"
+      },
+      {
+        "consoleId": "qi26xw299",
+        "userId": "b1yoq82h7",
+        "userIds": [
+          "b1yoq82h7"
+        ],
+        "tariffId": "hgf8nzpm0",
+        "startTime": "2026-09-15T16:11:00.032Z",
+        "lastResumeTime": "2026-09-15T16:11:31.362Z",
+        "accumulatedSeconds": 1,
+        "isPaused": false,
+        "status": "completed",
+        "addedItems": [],
+        "limitType": "time",
+        "limitValue": 60,
+        "isAlarmTriggered": true,
+        "id": "ls3ki78nj",
+        "pausedAt": null,
+        "endTime": "2026-09-15T17:14:50.517Z",
+        "splitUserIds": [
+          "b1yoq82h7"
+        ],
+        "splitCount": 1,
+        "costPerUser": 129118,
+        "pointsPerUser": 70,
+        "totalSessionAmount": 126586,
+        "totalProductsAmount": 0,
+        "tierDiscountAmount": 0,
+        "promoDiscountAmount": 0,
+        "promoName": "",
+        "taxAmount": 2532,
+        "totalCost": 129118,
+        "duration": 3797.584,
+        "paymentMethod": "card"
+      },
+      {
+        "consoleId": "wfomscw8o",
+        "userId": "vqez2acra",
+        "userIds": [
+          "vqez2acra"
+        ],
+        "tariffId": "ot2wkmpqt",
+        "startTime": "2026-09-15T16:41:50.372Z",
+        "lastResumeTime": "2026-09-15T16:41:50.372Z",
+        "accumulatedSeconds": 6825,
+        "isPaused": true,
+        "status": "completed",
+        "addedItems": [],
+        "limitType": "none",
+        "limitValue": 0,
+        "isAlarmTriggered": false,
+        "id": "fl1j7nbqx",
+        "pausedAt": "2026-09-15T18:35:35.755Z",
+        "endTime": "2026-09-15T18:44:34.151Z",
+        "splitUserIds": [
+          "vqez2acra"
+        ],
+        "splitCount": 1,
+        "costPerUser": 309400,
+        "pointsPerUser": 160,
+        "totalSessionAmount": 303333,
+        "totalProductsAmount": 0,
+        "tierDiscountAmount": 0,
+        "promoDiscountAmount": 0,
+        "promoName": "",
+        "taxAmount": 6067,
+        "totalCost": 309400,
+        "duration": 6825,
+        "paymentMethod": "card"
+      },
+      {
+        "consoleId": "wfomscw8o",
+        "userId": "y99c9f4ev",
+        "userIds": [
+          "y99c9f4ev"
+        ],
+        "tariffId": "ot2wkmpqt",
+        "startTime": "2026-09-16T13:14:26.264Z",
+        "lastResumeTime": "2026-09-16T13:14:26.264Z",
+        "accumulatedSeconds": 3300,
+        "isPaused": true,
+        "status": "completed",
+        "addedItems": [],
+        "limitType": "time",
+        "limitValue": 60,
+        "isAlarmTriggered": false,
+        "id": "jaecf2tgc",
+        "pausedAt": "2026-09-16T14:09:26.393Z",
+        "endTime": "2026-09-16T14:10:22.420Z",
+        "splitUserIds": [
+          "y99c9f4ev"
+        ],
+        "splitCount": 1,
+        "costPerUser": 149600,
+        "pointsPerUser": 76,
+        "totalSessionAmount": 146667,
+        "totalProductsAmount": 0,
+        "tierDiscountAmount": 0,
+        "promoDiscountAmount": 0,
+        "promoName": "",
+        "taxAmount": 2933,
+        "totalCost": 149600,
+        "duration": 3300,
+        "paymentMethod": "card"
+      },
+      {
+        "consoleId": "qi26xw299",
+        "userId": "b1yoq82h7",
+        "userIds": [
+          "b1yoq82h7"
+        ],
+        "tariffId": "hgf8nzpm0",
+        "startTime": "2026-09-16T16:54:09.431Z",
+        "lastResumeTime": "2026-09-16T16:54:09.431Z",
+        "accumulatedSeconds": 0,
+        "isPaused": false,
+        "status": "completed",
+        "addedItems": [],
+        "limitType": "time",
+        "limitValue": 90,
+        "isAlarmTriggered": true,
+        "id": "a0hbhy0lr",
+        "endTime": "2026-09-16T18:34:14.235Z",
+        "splitUserIds": [
+          "b1yoq82h7"
+        ],
+        "splitCount": 1,
+        "costPerUser": 203654,
+        "pointsPerUser": 112,
+        "totalSessionAmount": 199661,
+        "totalProductsAmount": 0,
+        "tierDiscountAmount": 0,
+        "promoDiscountAmount": 0,
+        "promoName": "",
+        "taxAmount": 3993,
+        "totalCost": 203654,
+        "duration": 5989.833,
+        "paymentMethod": "card"
+      },
+      {
+        "consoleId": "wfomscw8o",
+        "userId": "y99c9f4ev",
+        "userIds": [
+          "y99c9f4ev"
+        ],
+        "tariffId": "ot2wkmpqt",
+        "startTime": "2026-09-17T18:04:37.344Z",
+        "lastResumeTime": "2026-09-17T19:40:29.906Z",
+        "accumulatedSeconds": 7276,
+        "isPaused": true,
+        "status": "completed",
+        "addedItems": [],
+        "limitType": "none",
+        "limitValue": 0,
+        "isAlarmTriggered": false,
+        "id": "pgqu2o5ub",
+        "pausedAt": "2026-09-17T20:44:14.726Z",
+        "endTime": "2026-09-17T21:34:03.097Z",
+        "splitUserIds": [
+          "y99c9f4ev"
+        ],
+        "splitCount": 1,
+        "costPerUser": 329846,
+        "pointsPerUser": 170,
+        "totalSessionAmount": 323378,
+        "totalProductsAmount": 0,
+        "tierDiscountAmount": 0,
+        "promoDiscountAmount": 0,
+        "promoName": "",
+        "taxAmount": 6468,
+        "totalCost": 329846,
+        "duration": 7276,
+        "paymentMethod": "card"
+      },
+      {
+        "consoleId": "qi26xw299",
+        "userId": "y99c9f4ev",
+        "userIds": [
+          "y99c9f4ev"
+        ],
+        "tariffId": "cwt4yr6z0",
+        "startTime": "2026-09-17T19:40:57.657Z",
+        "lastResumeTime": "2026-09-17T19:40:57.657Z",
+        "accumulatedSeconds": 0,
+        "isPaused": false,
+        "status": "completed",
+        "addedItems": [],
+        "limitType": "time",
+        "limitValue": 30,
+        "isAlarmTriggered": true,
+        "id": "a4etaqv4l",
+        "endTime": "2026-09-17T20:44:12.661Z",
+        "splitUserIds": [
+          "y99c9f4ev"
+        ],
+        "splitCount": 1,
+        "costPerUser": 102312,
+        "pointsPerUser": 52,
+        "totalSessionAmount": 100306,
+        "totalProductsAmount": 0,
+        "tierDiscountAmount": 0,
+        "promoDiscountAmount": 0,
+        "promoName": "",
+        "taxAmount": 2006,
+        "totalCost": 102312,
+        "duration": 2256.892,
+        "paymentMethod": "card"
+      }
+    ],
+    "tariffs": [
+      {
+        "name": "یک نفره 4",
+        "pricePerHour": 100000,
+        "consoleType": "PS4",
+        "id": "rmam81rv1"
+      },
+      {
+        "name": "دو نفره 4",
+        "pricePerHour": 120000,
+        "consoleType": "PS4",
+        "id": "hgf8nzpm0"
+      },
+      {
+        "name": "یک نفره 5",
+        "pricePerHour": 140000,
+        "consoleType": "PS5",
+        "id": "igy7jpi8s"
+      },
+      {
+        "name": "دو نفره 5",
+        "pricePerHour": 160000,
+        "consoleType": "PS5",
+        "id": "ot2wkmpqt"
+      },
+      {
+        "name": "چهار نفره 4",
+        "pricePerHour": 160000,
+        "consoleType": "PS4",
+        "id": "cwt4yr6z0"
+      },
+      {
+        "name": "سه نفره 4",
+        "pricePerHour": 140000,
+        "consoleType": "PS4",
+        "id": "f8o0db4hk"
+      },
+      {
+        "name": "سه نفره 5",
+        "pricePerHour": 180000,
+        "consoleType": "PS5",
+        "id": "9v8om4pob"
+      },
+      {
+        "name": "چهار نفره 5",
+        "pricePerHour": 200000,
+        "consoleType": "PS5",
+        "id": "7xc00vn0l"
+      }
+    ],
+    "client_tiers": [
+      {
+        "name": "آماتور (Amateur)",
+        "minPlayTime": 0,
+        "discountPercentage": 0,
+        "color": "slate",
+        "id": "oigqmoh4n"
+      },
+      {
+        "name": "پلیر معمولی (Player)",
+        "minPlayTime": 600,
+        "discountPercentage": 3,
+        "color": "indigo",
+        "id": "u319i4tfw"
+      },
+      {
+        "name": "طرفدار کلوپ (Fan)",
+        "minPlayTime": 1800,
+        "discountPercentage": 5,
+        "color": "emerald",
+        "id": "miltun3kr"
+      },
+      {
+        "name": "گیمر کوشا (Diligence)",
+        "minPlayTime": 3000,
+        "discountPercentage": 7,
+        "color": "orange",
+        "id": "sde23jiuy"
+      },
+      {
+        "name": "پلیر حرفه‌ای (Pro)",
+        "minPlayTime": 6000,
+        "discountPercentage": 10,
+        "color": "rose",
+        "id": "8gng9zp1n"
+      },
+      {
+        "name": "وفادار نقره‌ای (Silver)",
+        "minPlayTime": 12000,
+        "discountPercentage": 12,
+        "color": "slate",
+        "id": "wgpo82bf7"
+      },
+      {
+        "name": "وفادار طلایی (Gold)",
+        "minPlayTime": 30000,
+        "discountPercentage": 15,
+        "color": "amber",
+        "id": "ymy7zr1ez"
+      },
+      {
+        "name": "گیمر پلاتینیوم (Platinum)",
+        "minPlayTime": 60000,
+        "discountPercentage": 20,
+        "color": "indigo",
+        "id": "lkqb2daf3"
+      },
+      {
+        "name": "افسانه کلوپ (Legend)",
+        "minPlayTime": 120000,
+        "discountPercentage": 25,
+        "color": "emerald",
+        "id": "xibmin3bj"
+      },
+      {
+        "name": "ارباب گیم (Game Lord)",
+        "minPlayTime": 300000,
+        "discountPercentage": 30,
+        "color": "rose",
+        "id": "yy4hnz1rd"
+      }
+    ],
+    "products": [
+      {
+        "name": "تخم شربتی البالو",
+        "category": "نوشیدنی",
+        "price": 90000,
+        "stock": 11,
+        "minStock": 2,
+        "id": "5qwky6cxk"
+      },
+      {
+        "name": "تخم شربتی طالبی",
+        "category": "نوشیدنی",
+        "price": 90000,
+        "stock": 3,
+        "minStock": 2,
+        "id": "etqvxeqiu"
+      },
+      {
+        "name": "تخم شربتی پرتغال",
+        "category": "نوشیدنی",
+        "price": 90000,
+        "stock": 5,
+        "minStock": 2,
+        "id": "ljzhmfaza"
+      },
+      {
+        "name": "اب معدنی زمزم",
+        "category": "نوشیدنی",
+        "price": 20000,
+        "stock": 1,
+        "minStock": 2,
+        "id": "4t7f36qw9"
+      },
+      {
+        "name": "موگو موگو انبه",
+        "category": "نوشیدنی",
+        "price": 90000,
+        "stock": 6,
+        "minStock": 2,
+        "id": "irgcg5270"
+      },
+      {
+        "name": "موگو موگو سیب ",
+        "category": "نوشیدنی",
+        "price": 90000,
+        "stock": 4,
+        "minStock": 2,
+        "id": "ugos6nlge"
+      },
+      {
+        "name": "موگو موگو سیب",
+        "category": "نوشیدنی",
+        "price": 90000,
+        "stock": 6,
+        "minStock": 2,
+        "id": "3e9d7mp8x"
+      },
+      {
+        "name": "موگو موگو انگور",
+        "category": "نوشیدنی",
+        "price": 90000,
+        "stock": 6,
+        "minStock": 2,
+        "id": "99cmgt1f2"
+      },
+      {
+        "name": "تکه نارگیل ماکلین طالبی",
+        "category": "نوشیدنی",
+        "price": 90000,
+        "stock": 3,
+        "minStock": 1,
+        "id": "76e22z1fz"
+      },
+      {
+        "name": "تکه نارگیل ماکلین انبه",
+        "category": "نوشیدنی",
+        "price": 90000,
+        "stock": 3,
+        "minStock": 1,
+        "id": "7a368h201"
+      },
+      {
+        "name": "تکه نارگیل ماکلین بلوبری",
+        "category": "نوشیدنی",
+        "price": 90000,
+        "stock": 0,
+        "minStock": 1,
+        "id": "6nyaxbf9r"
+      },
+      {
+        "name": "انرژی زا کریستال",
+        "category": "نوشیدنی",
+        "price": 85000,
+        "stock": 10,
+        "minStock": 3,
+        "id": "ej44rtz0h"
+      },
+      {
+        "name": "انرژی زا چی‌لایف",
+        "category": "نوشیدنی",
+        "price": 85000,
+        "stock": 11,
+        "minStock": 3,
+        "id": "zttf99299"
+      },
+      {
+        "name": "نوشابه زرد شیشه",
+        "category": "نوشیدنی",
+        "price": 70000,
+        "stock": 2,
+        "minStock": 0,
+        "id": "4z3sj65tn"
+      },
+      {
+        "name": "نوشابه مشکی پپسی",
+        "category": "نوشیدنی",
+        "price": 65000,
+        "stock": 4,
+        "minStock": 0,
+        "id": "7dbypc2pt"
+      },
+      {
+        "name": "نوشابه مشکی بطری",
+        "category": "نوشیدنی",
+        "price": 60000,
+        "stock": 12,
+        "minStock": 4,
+        "id": "3tqbprlya"
+      },
+      {
+        "name": "نوشابه زرد بطری",
+        "category": "نوشیدنی",
+        "price": 60000,
+        "stock": 12,
+        "minStock": 4,
+        "id": "vr7t8v7t4"
+      },
+      {
+        "name": "موجودی اولیه",
+        "category": "سایر",
+        "price": 6008328,
+        "stock": 1,
+        "minStock": 0,
+        "id": "aavml6nc8"
+      },
+      {
+        "name": "قهوه",
+        "category": "نوشیدنی",
+        "price": 110000,
+        "stock": 14,
+        "minStock": 5,
+        "id": "ow5jtkhvh"
+      }
+    ],
+    "sales": [
+      {
+        "items": [
+          {
+            "productId": "5qwky6cxk",
+            "name": "تخم شربتی البالو",
+            "quantity": 1,
+            "price": 90000
+          }
+        ],
+        "totalAmount": 90000,
+        "taxAmount": 0,
+        "taxRate": 0,
+        "discountAmount": 0,
+        "timestamp": "2026-09-10T17:34:03.953Z",
+        "type": "quick_sale",
+        "userId": null,
+        "paymentMethod": "card",
+        "id": "ah3hxe133"
+      },
+      {
+        "items": [
+          {
+            "productId": "etqvxeqiu",
+            "name": "تخم شربتی طالبی",
+            "quantity": 1,
+            "price": 90000
+          }
+        ],
+        "totalAmount": 99000,
+        "taxAmount": 9000,
+        "taxRate": 10,
+        "discountAmount": 0,
+        "timestamp": "2026-09-10T17:34:23.894Z",
+        "type": "quick_sale",
+        "userId": null,
+        "paymentMethod": "card",
+        "id": "fargjk4lk"
+      },
+      {
+        "items": [
+          {
+            "productId": "ugos6nlge",
+            "name": "موگو موگو سیب ",
+            "quantity": 1,
+            "price": 90000
+          }
+        ],
+        "totalAmount": 90000,
+        "taxAmount": 0,
+        "taxRate": 0,
+        "discountAmount": 0,
+        "timestamp": "2026-09-10T17:35:23.501Z",
+        "type": "quick_sale",
+        "userId": null,
+        "paymentMethod": "card",
+        "id": "fdxfehrgx"
+      },
+      {
+        "items": [
+          {
+            "productId": "6nyaxbf9r",
+            "name": "تکه نارگیل ماکلین بلوبری",
+            "quantity": 1,
+            "price": 90000
+          }
+        ],
+        "totalAmount": 90000,
+        "taxAmount": 0,
+        "taxRate": 0,
+        "discountAmount": 0,
+        "timestamp": "2026-09-10T17:36:21.826Z",
+        "type": "quick_sale",
+        "userId": null,
+        "paymentMethod": "card",
+        "id": "q7y1fjfl2"
+      },
+      {
+        "items": [
+          {
+            "productId": "aavml6nc8",
+            "name": "موجودی اولیه",
+            "quantity": 1,
+            "price": 6008328
+          }
+        ],
+        "totalAmount": 6008328,
+        "taxAmount": 0,
+        "taxRate": 0,
+        "discountAmount": 0,
+        "timestamp": "2026-09-11T11:27:37.827Z",
+        "type": "quick_sale",
+        "userId": null,
+        "paymentMethod": "card",
+        "id": "5x5lyc155"
+      },
+      {
+        "items": [
+          {
+            "productId": "ow5jtkhvh",
+            "name": "قهوه",
+            "quantity": 1,
+            "price": 110000
+          }
+        ],
+        "totalAmount": 110000,
+        "taxAmount": 0,
+        "taxRate": 0,
+        "discountAmount": 0,
+        "timestamp": "2026-09-11T13:05:58.906Z",
+        "type": "quick_sale",
+        "userId": null,
+        "paymentMethod": "card",
+        "id": "7dn54rskp"
+      },
+      {
+        "items": [
+          {
+            "productId": "6nyaxbf9r",
+            "name": "تکه نارگیل ماکلین بلوبری",
+            "quantity": 1,
+            "price": 90000
+          }
+        ],
+        "totalAmount": 91800,
+        "taxAmount": 1800,
+        "taxRate": 2,
+        "discountAmount": 0,
+        "timestamp": "2026-09-17T20:04:27.550Z",
+        "type": "quick_sale",
+        "userId": "xzltm20nt",
+        "paymentMethod": "card",
+        "id": "gngfkpse5"
+      }
+    ],
+    "clients": [
+      {
+        "name": "مهمان (Guest)",
+        "phone": "0000000000",
+        "balance": 0,
+        "points": 0,
+        "totalPlayTime": 0,
+        "totalPaid": 0,
+        "isGuest": true,
+        "tier": "none",
+        "id": "y99c9f4ev"
+      },
+      {
+        "name": "امیر سفیده",
+        "firstName": "امیر سفیده",
+        "lastName": "",
+        "username": "sefidoo",
+        "phone": "09339596112",
+        "balance": 0,
+        "points": 0,
+        "totalPlayTime": 0,
+        "totalPaid": 0,
+        "tier": "bronze",
+        "id": "gjmj4x9xe"
+      },
+      {
+        "name": "ممد فعال",
+        "firstName": "ممد فعال",
+        "lastName": "",
+        "username": "active",
+        "phone": "09039277409",
+        "balance": 0,
+        "points": 396,
+        "totalPlayTime": 261,
+        "totalPaid": 782842,
+        "tier": "bronze",
+        "id": "mgt88ro6i"
+      },
+      {
+        "name": "متی نیگا",
+        "firstName": "متی نیگا",
+        "lastName": "",
+        "username": "niga",
+        "phone": "09912344283",
+        "balance": 0,
+        "points": 201,
+        "totalPlayTime": 204,
+        "totalPaid": 389024,
+        "tier": "bronze",
+        "id": "prlls0ws3"
+      },
+      {
+        "name": "امیر دهن سرویس",
+        "firstName": "امیر دهن سرویس",
+        "lastName": "",
+        "username": "dhn srv",
+        "phone": "09309929133",
+        "balance": 0,
+        "points": 160,
+        "totalPlayTime": 114,
+        "totalPaid": 309400,
+        "tier": "bronze",
+        "id": "vqez2acra"
+      },
+      {
+        "name": "پویا",
+        "firstName": "پویا",
+        "lastName": "",
+        "username": "pooya",
+        "phone": "09198994272",
+        "balance": 0,
+        "points": 0,
+        "totalPlayTime": 0,
+        "totalPaid": 0,
+        "tier": "bronze",
+        "id": "w8v9frqjp"
+      },
+      {
+        "name": "ممد",
+        "firstName": "ممد",
+        "lastName": "",
+        "username": "mmd",
+        "phone": "09300256836",
+        "balance": 0,
+        "points": 0,
+        "totalPlayTime": 0,
+        "totalPaid": 0,
+        "tier": "bronze",
+        "id": "e5x9ctglw"
+      },
+      {
+        "name": "حسین",
+        "firstName": "حسین",
+        "lastName": "",
+        "username": "dabe",
+        "phone": "09120572733",
+        "balance": 0,
+        "points": 0,
+        "totalPlayTime": 0,
+        "totalPaid": 0,
+        "tier": "bronze",
+        "id": "f5zhsdzq9"
+      },
+      {
+        "name": "مهرشاد",
+        "firstName": "مهرشاد",
+        "lastName": "",
+        "username": "meri",
+        "phone": "09126937243",
+        "balance": 0,
+        "points": 87,
+        "totalPlayTime": 123,
+        "totalPaid": 167933,
+        "tier": "bronze",
+        "id": "gp6qomv4s"
+      },
+      {
+        "name": "طاهر کریمی",
+        "firstName": "طاهر کریمی",
+        "lastName": "",
+        "username": "taher",
+        "phone": "09335398251",
+        "balance": 0,
+        "points": 250,
+        "totalPlayTime": 523,
+        "totalPaid": 1052772,
+        "tier": "bronze",
+        "id": "b1yoq82h7"
+      },
+      {
+        "name": "ارین",
+        "firstName": "ارین",
+        "lastName": "",
+        "username": "az",
+        "phone": "09101934463",
+        "balance": 0,
+        "points": 0,
+        "totalPlayTime": 0,
+        "totalPaid": 91800,
+        "tier": "bronze",
+        "id": "xzltm20nt"
+      }
+    ],
+    "goals": [
+      {
+        "title": "مانیتور جدید",
+        "targetAmount": 10000000,
+        "category": "hardware",
+        "description": "",
+        "currentAmount": 0,
+        "createdAt": "2026-09-11T11:43:21.051Z",
+        "id": "fkagflozv"
+      }
+    ],
+    "shareholders": [
+      {
+        "name": "ممد",
+        "investments": [
+          {
+            "amount": 7800000,
+            "date": "2026-09-09T17:31:40.853Z",
+            "note": "دوربین"
+          },
+          {
+            "amount": 5700000,
+            "date": "2026-09-09T17:33:55.846Z",
+            "note": "برق"
+          },
+          {
+            "amount": 1300000,
+            "date": "2026-09-09T17:35:20.390Z",
+            "note": "قفل"
+          },
+          {
+            "amount": 1100000,
+            "date": "2026-09-09T17:35:38.537Z",
+            "note": "سیم"
+          },
+          {
+            "amount": 5900000,
+            "date": "2026-09-09T17:35:55.984Z",
+            "note": "؟"
+          },
+          {
+            "amount": 700000,
+            "date": "2026-09-09T17:36:08.589Z",
+            "note": "منگنه"
+          },
+          {
+            "amount": 400000,
+            "date": "2026-09-09T17:36:34.365Z",
+            "note": "سنسور"
+          },
+          {
+            "amount": 500000,
+            "date": "2026-09-09T17:37:58.699Z",
+            "note": "سیم دوربین"
+          },
+          {
+            "amount": 34000000,
+            "date": "2026-09-09T17:38:17.350Z",
+            "note": "تلوزیون"
+          },
+          {
+            "amount": 22800000,
+            "date": "2026-09-09T17:38:48.816Z",
+            "note": "تلوزیون"
+          },
+          {
+            "amount": 200000,
+            "date": "2026-09-09T17:40:16.090Z",
+            "note": "قفل و پیچ"
+          },
+          {
+            "amount": 6250000,
+            "date": "2026-09-09T17:42:39.386Z",
+            "note": "تلوزیون"
+          },
+          {
+            "amount": 2040000,
+            "date": "2026-09-09T17:43:21.354Z",
+            "note": "تی و رنگ"
+          },
+          {
+            "amount": 5030000,
+            "date": "2026-09-09T17:43:41.296Z",
+            "note": "وایتکس و ..."
+          },
+          {
+            "amount": 1030000,
+            "date": "2026-09-09T17:44:48.172Z",
+            "note": "قفل"
+          },
+          {
+            "amount": 2300000,
+            "date": "2026-09-09T17:45:11.198Z",
+            "note": "شیشه"
+          },
+          {
+            "amount": 1000000,
+            "date": "2026-09-09T17:45:30.906Z",
+            "note": "قاب دینام"
+          },
+          {
+            "amount": 920000,
+            "date": "2026-09-09T17:45:45.769Z",
+            "note": "لوله کشی"
+          },
+          {
+            "amount": 6250000,
+            "date": "2026-09-09T17:46:14.974Z",
+            "note": "تلوزیون"
+          },
+          {
+            "amount": 5000000,
+            "date": "2026-09-09T17:46:40.325Z",
+            "note": "بازی"
+          },
+          {
+            "amount": 1200000,
+            "date": "2026-09-09T17:47:14.705Z",
+            "note": "طراحی"
+          },
+          {
+            "amount": 38000000,
+            "date": "2026-09-09T18:15:10.435Z",
+            "note": "دسته و هارد"
+          },
+          {
+            "amount": 1200000,
+            "date": "2026-09-11T11:23:34.564Z",
+            "note": "کولر"
+          },
+          {
+            "amount": 450000,
+            "date": "2026-09-12T18:38:04.746Z",
+            "note": "پاک اسکرین "
+          }
+        ],
+        "joinedAt": "2026-09-09T17:31:40.853Z",
+        "id": "f90wm44by"
+      },
+      {
+        "name": "پویا",
+        "investments": [
+          {
+            "amount": 5700000,
+            "date": "2026-09-09T17:34:27.545Z",
+            "note": "برق"
+          },
+          {
+            "amount": 2500000,
+            "date": "2026-09-09T17:49:02.118Z",
+            "note": "لامپ"
+          },
+          {
+            "amount": 1500000,
+            "date": "2026-09-09T17:49:19.916Z",
+            "note": "لامپ"
+          },
+          {
+            "amount": 700000,
+            "date": "2026-09-09T17:49:39.982Z",
+            "note": "کلید"
+          },
+          {
+            "amount": 3905000,
+            "date": "2026-09-09T17:50:30.300Z",
+            "note": "پایه تلوزیون"
+          },
+          {
+            "amount": 2594000,
+            "date": "2026-09-09T17:50:46.175Z",
+            "note": "پایه"
+          },
+          {
+            "amount": 5000000,
+            "date": "2026-09-09T17:51:05.319Z",
+            "note": "تلوزیون"
+          },
+          {
+            "amount": 15000000,
+            "date": "2026-09-09T17:51:24.874Z",
+            "note": "دیوارپوش"
+          },
+          {
+            "amount": 6250000,
+            "date": "2026-09-09T17:51:43.230Z",
+            "note": "تلوزیون"
+          },
+          {
+            "amount": 1800000,
+            "date": "2026-09-09T17:51:57.295Z",
+            "note": "مانیتور"
+          },
+          {
+            "amount": 570000,
+            "date": "2026-09-09T17:52:08.714Z",
+            "note": "تزئینات"
+          },
+          {
+            "amount": 1185000,
+            "date": "2026-09-09T17:52:25.237Z",
+            "note": "برق و استند"
+          },
+          {
+            "amount": 1714000,
+            "date": "2026-09-09T17:52:54.210Z",
+            "note": "نوشیدنی"
+          },
+          {
+            "amount": 5700000,
+            "date": "2026-09-09T17:53:11.109Z",
+            "note": "کولر"
+          },
+          {
+            "amount": 5850000,
+            "date": "2026-09-09T17:53:21.424Z",
+            "note": "کولر"
+          },
+          {
+            "amount": 1000000,
+            "date": "2026-09-09T17:53:30.505Z",
+            "note": "قهوه"
+          },
+          {
+            "amount": 12500000,
+            "date": "2026-09-09T17:53:47.337Z",
+            "note": "تلوزیون"
+          },
+          {
+            "amount": 6250000,
+            "date": "2026-09-09T17:53:56.868Z",
+            "note": "تلوزیون"
+          },
+          {
+            "amount": 2503000,
+            "date": "2026-09-09T17:54:09.023Z",
+            "note": "چاپ"
+          },
+          {
+            "amount": 1000000,
+            "date": "2026-09-09T17:54:17.351Z",
+            "note": "تخته"
+          },
+          {
+            "amount": 1000000,
+            "date": "2026-09-09T18:04:20.514Z",
+            "note": "تابلو روان"
+          },
+          {
+            "amount": 14000000,
+            "date": "2026-09-09T18:12:25.854Z",
+            "note": "قهوه ساز"
+          },
+          {
+            "amount": 43000000,
+            "date": "2026-09-09T18:16:50.480Z",
+            "note": "هارد و دسته"
+          },
+          {
+            "amount": 550000,
+            "date": "2026-09-10T17:38:16.075Z",
+            "note": "شیر"
+          }
+        ],
+        "joinedAt": "2026-09-09T17:34:27.545Z",
+        "id": "r8k9zxbga"
+      },
+      {
+        "name": "حسین",
+        "investments": [
+          {
+            "amount": 2279000,
+            "date": "2026-09-09T17:35:00.774Z",
+            "note": "برق"
+          },
+          {
+            "amount": 1149000,
+            "date": "2026-09-09T17:55:26.988Z",
+            "note": "برق"
+          },
+          {
+            "amount": 19999999,
+            "date": "2026-09-09T17:56:27.419Z",
+            "note": "تلوزیون"
+          },
+          {
+            "amount": 25200000,
+            "date": "2026-09-09T17:59:20.836Z",
+            "note": "یخچال"
+          },
+          {
+            "amount": 11875000,
+            "date": "2026-09-09T18:00:53.290Z",
+            "note": "برق"
+          },
+          {
+            "amount": 725000,
+            "date": "2026-09-09T18:01:05.058Z",
+            "note": "کنتور"
+          },
+          {
+            "amount": 7400000,
+            "date": "2026-09-09T18:01:19.385Z",
+            "note": "مبل"
+          }
+        ],
+        "joinedAt": "2026-09-09T17:35:00.774Z",
+        "id": "dll3frllo"
+      }
+    ],
+    "purchases": [
+      {
+        "productId": "5qwky6cxk",
+        "productName": "تخم شربتی البالو",
+        "quantity": 12,
+        "costPrice": 0,
+        "totalCost": 0,
+        "timestamp": "2026-09-09T16:10:42.860Z",
+        "id": "e4ztr1td2"
+      },
+      {
+        "productId": "etqvxeqiu",
+        "productName": "تخم شربتی",
+        "quantity": 4,
+        "costPrice": 0,
+        "totalCost": 0,
+        "timestamp": "2026-09-09T16:11:33.263Z",
+        "id": "c56xphf6i"
+      },
+      {
+        "productId": "ljzhmfaza",
+        "productName": "تخم شربتی",
+        "quantity": 5,
+        "costPrice": 0,
+        "totalCost": 0,
+        "timestamp": "2026-09-09T16:12:38.727Z",
+        "id": "0uurqwv2e"
+      },
+      {
+        "productId": "4t7f36qw9",
+        "productName": "اب معدنی زمزم",
+        "quantity": 2,
+        "costPrice": 0,
+        "totalCost": 0,
+        "timestamp": "2026-09-09T16:14:53.093Z",
+        "id": "tx8zhh9pc"
+      },
+      {
+        "productId": "irgcg5270",
+        "productName": "موگو موگو انبه",
+        "quantity": 6,
+        "costPrice": 0,
+        "totalCost": 0,
+        "timestamp": "2026-09-09T16:22:17.933Z",
+        "id": "jitosck5l"
+      },
+      {
+        "productId": "ugos6nlge",
+        "productName": "موگو موگو طالبی ",
+        "quantity": 5,
+        "costPrice": 0,
+        "totalCost": 0,
+        "timestamp": "2026-09-09T16:50:01.864Z",
+        "id": "k7jk7hhbv"
+      },
+      {
+        "productId": "3e9d7mp8x",
+        "productName": "موگو موگو پرتغالی",
+        "quantity": 6,
+        "costPrice": 0,
+        "totalCost": 0,
+        "timestamp": "2026-09-09T16:50:55.391Z",
+        "id": "uicgh3oz2"
+      },
+      {
+        "productId": "99cmgt1f2",
+        "productName": "موگو موگو انگور",
+        "quantity": 6,
+        "costPrice": 0,
+        "totalCost": 0,
+        "timestamp": "2026-09-09T16:51:30.265Z",
+        "id": "g9zu3wcsh"
+      },
+      {
+        "productId": "76e22z1fz",
+        "productName": "تکه نارگیل ماکلین طالبی",
+        "quantity": 2,
+        "costPrice": 0,
+        "totalCost": 0,
+        "timestamp": "2026-09-09T16:52:39.677Z",
+        "id": "h1kbu9un5"
+      },
+      {
+        "productId": "7a368h201",
+        "productName": "تکه نارگیل ماکلین طالبی",
+        "quantity": 2,
+        "costPrice": 0,
+        "totalCost": 0,
+        "timestamp": "2026-09-09T16:53:27.448Z",
+        "id": "ouzt8kfag"
+      },
+      {
+        "productId": "6nyaxbf9r",
+        "productName": "تکه نارگیل ماکلین بلوبری",
+        "quantity": 2,
+        "costPrice": 0,
+        "totalCost": 0,
+        "timestamp": "2026-09-09T16:55:27.201Z",
+        "id": "i4qf4ulu7"
+      },
+      {
+        "productId": "ej44rtz0h",
+        "productName": "انرژی زا کریستال",
+        "quantity": 10,
+        "costPrice": 0,
+        "totalCost": 0,
+        "timestamp": "2026-09-09T16:56:32.351Z",
+        "id": "0892ir4vs"
+      },
+      {
+        "productId": "zttf99299",
+        "productName": "انرژی زا چی‌لایف",
+        "quantity": 11,
+        "costPrice": 0,
+        "totalCost": 0,
+        "timestamp": "2026-09-09T16:57:38.481Z",
+        "id": "ntlneebvi"
+      },
+      {
+        "productId": "4z3sj65tn",
+        "productName": "نوشابه زرد شیشه زمزم",
+        "quantity": 2,
+        "costPrice": 0,
+        "totalCost": 0,
+        "timestamp": "2026-09-09T16:58:58.737Z",
+        "id": "tosj1ho06"
+      },
+      {
+        "productId": "7dbypc2pt",
+        "productName": "نوشابه مشکی پپسی",
+        "quantity": 4,
+        "costPrice": 0,
+        "totalCost": 0,
+        "timestamp": "2026-09-09T16:59:31.097Z",
+        "id": "1gfqn9yrn"
+      },
+      {
+        "productId": "3tqbprlya",
+        "productName": "نوشابه مشکی بطری",
+        "quantity": 12,
+        "costPrice": 0,
+        "totalCost": 0,
+        "timestamp": "2026-09-09T17:01:28.131Z",
+        "id": "0t7riz1z1"
+      },
+      {
+        "productId": "vr7t8v7t4",
+        "productName": "نوشابه زرد بطری",
+        "quantity": 12,
+        "costPrice": 0,
+        "totalCost": 0,
+        "timestamp": "2026-09-09T17:02:13.709Z",
+        "id": "0j36nq3yx"
+      },
+      {
+        "productId": "7a368h201",
+        "productName": "تکه نارگیل ماکلین انبه",
+        "quantity": 1,
+        "costPrice": 0,
+        "totalCost": 0,
+        "timestamp": "2026-09-10T17:36:37.987Z",
+        "id": "q4uh7155j"
+      },
+      {
+        "productId": "76e22z1fz",
+        "productName": "تکه نارگیل ماکلین طالبی",
+        "quantity": 1,
+        "costPrice": 0,
+        "totalCost": 0,
+        "timestamp": "2026-09-10T17:37:10.279Z",
+        "id": "9ky8qlpcb"
+      },
+      {
+        "productId": "aavml6nc8",
+        "productName": "موجودی اولیه",
+        "quantity": 1,
+        "costPrice": 0,
+        "totalCost": 0,
+        "timestamp": "2026-09-11T11:27:18.382Z",
+        "id": "mjod0vncv"
+      },
+      {
+        "productId": "aavml6nc8",
+        "productName": "موجودی اولیه",
+        "quantity": 1,
+        "costPrice": 0,
+        "totalCost": 0,
+        "timestamp": "2026-09-11T11:27:58.994Z",
+        "id": "wlpkgebhh"
+      },
+      {
+        "productId": "ow5jtkhvh",
+        "productName": "قهوه",
+        "quantity": 15,
+        "costPrice": 104000,
+        "totalCost": 1560000,
+        "timestamp": "2026-09-11T12:30:11.712Z",
+        "id": "gjr3kwqkx"
+      }
+    ],
+    "monthly_fixed_costs": [
+      {
+        "fixedExpenseId": "nu59ycrba",
+        "month": 5,
+        "year": 1405,
+        "amount": 0,
+        "id": "ldx6qvq3g"
+      },
+      {
+        "fixedExpenseId": "ud2hfy8l6",
+        "month": 5,
+        "year": 1405,
+        "amount": 0,
+        "id": "ct4ef93en"
+      }
+    ],
+    "points_rewards": [
+      {
+        "id": "reward_1",
+        "title": "لقب و نام نمای کارت کلوپ",
+        "cost": 10,
+        "type": "custom_nickname",
+        "description": "تغییر نام مستعار دلخواه که روی کارت کلوب دیجیتالی و رنکینگ‌ها نمایش داده می‌شود.",
+        "isActive": true
+      },
+      {
+        "id": "reward_2",
+        "title": "تغییر کاراکتر و آواتار منو",
+        "cost": 15,
+        "type": "profile_avatar_unlock",
+        "description": "آزاد کردن شخصیت‌های انیمیشنی معتبر بازی‌های تاریخی روی عکس کاربری.",
+        "isActive": true
+      },
+      {
+        "id": "reward_3",
+        "title": "کوپن تخفیف بوفه کلوب",
+        "cost": 25,
+        "type": "discount_coupon",
+        "description": "دریافت کوپن تخفیف ۲۰,۰۰۰ تومانی بوفاران به صورت خودکار و کسر امتیاز.",
+        "isActive": true
+      },
+      {
+        "id": "reward_4",
+        "title": "۱ ساعت بازی رایگان کنسول",
+        "cost": 40,
+        "type": "free_game",
+        "description": "صدور آنی کارت ۱ ساعت بازی رایگان روی کلیه کنسول‌های بازی کلوب.",
+        "isActive": true
+      }
+    ],
+    "settings": [
+      {
+        "storeName": "404",
+        "currency": "تومان",
+        "taxRate": 2,
+        "monthlySalesTarget": 10000000,
+        "contactPhone": "",
+        "address": "",
+        "autoBackup": true,
+        "alarmMinuteWarning": 2,
+        "alarmEnabled": true,
+        "defaultMinStock": 10,
+        "themes": {},
+        "logo": "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAPYAAAClCAMAAABY1vCjAAAAElBMVEX///9TU1NBQUGOjo7BwcFubm46KB7ZAAACqElEQVR4nO3d23aDIBRF0Sr4/7/cjqE0gQgeBAIH137oQ7wxawyIqD8//bIu97PajgUvC2zYsGHDVsu2e0rYizlW0tsij1n3lKj/9vee3hh5TJnXx/fGyBOyS3a+XvZ2HKXbs9jm/GPYsGHDVhHYD2Yv2547as3sksAePbBhw4YNGzbs3hh5YMOGDRs2bNi9MfLAhg37EInSGyOPjL31LmbtyNjmekW6Ahs2bNgTBXYq580TvdV5UeMUtrLAhg07ke/+ktsqY/VlQ4ltOnVAspgaJ/VWNHB8pI4DW6NIsptDYHcP7IKVwIY9Jdu8IhtDPAdbRIUNu39gZwY2bF3sRdZra986eLPZYUdxz/vxrV+yS3Y+NvpPgP31wIYdnRv2VOxI5+3xcdnAs/0s1a1kJPYSqVNrPEfmv7myjseO7IkaX27YsPsENuzG7OHOwFw246eC+sW2b387JcJukRG7GWDDhg0bNmzYsGHD7p6Hsk3FLmBFbFvxzFIR2+Xecxphw/4ED3sjekv2wG8TaMge+d0RD2UXvSdAL9vdntPAPTLbBTZs2LBhw1bJPlKl/tb3yA3YsGHDhu1lVcgu6kc+FtZTX4eZ/TV9kcCGDRv2TOx0P/L51K5sUxJX5V70I7vpaba93l615N9o/F5w4Xhy5/Inh+wvDh1YRmKXFCUzboz+vVTe29/LydFekCK23sB+MDs4koKHAs7KjrkM7CkCG3aY1mzTrF0SySDsz7qzbQZhr7fZ9x4cfGzP3fEaK1Zj9vsZbOaiQdNd6D7YF3MP/JPmfVvFl9zVsx+6t4uObb3se4GdCOw5klVvCy702vTkUZLVSnNzJZoUdlUxXO0OOzWI47HsVo+b2fwINxKZuzY7ERsUPHNxvwh5zbGLywNt2f62YIvyTPYvvUw5czKcwVEAAAAASUVORK5CYII=",
+        "id": "ocinklqu4"
+      }
+    ]
+  }
+}

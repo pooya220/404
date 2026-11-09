@@ -1,0 +1,116 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // 0. Global Safety Net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // --- Helpers ---
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isEmailVerified() {
+      return isSignedIn() && request.auth.token.email_verified == true;
+    }
+
+    function isAdmin() {
+      return isSignedIn() && request.auth.token.email == 'pooya.Miri2014@gmail.com';
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // --- Entity Validations ---
+    function isValidConsole(data) {
+      return data.keys().hasAll(['name', 'type', 'status'])
+        && data.name is string && data.name.size() <= 64
+        && data.type is string && data.type.size() <= 32
+        && data.status in ['idle', 'active', 'reserved', 'maintenance'];
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['name', 'phone'])
+        && data.name is string && data.name.size() <= 100
+        && data.phone is string && data.phone.size() <= 20;
+    }
+
+    function isValidSession(data) {
+      return data.keys().hasAll(['consoleId', 'startTime', 'status'])
+        && isValidId(data.consoleId)
+        && data.status in ['running', 'completed'];
+    }
+
+    function isValidTariff(data) {
+      return data.keys().hasAll(['name', 'pricePerHour'])
+        && data.name is string && data.name.size() <= 100
+        && data.pricePerHour is number;
+    }
+
+    // --- Collection Routes ---
+
+    match /consoles/{consoleId} {
+      allow read: if isSignedIn();
+      allow create, delete: if isAdmin();
+      allow update: if (isAdmin() || (isSignedIn() && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'currentSessionId'])))
+                    && isValidConsole(incoming());
+    }
+
+    match /tariffs/{tariffId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /clients/{clientId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /products/{productId} {
+      allow read: if isSignedIn();
+      allow write: if isAdmin();
+    }
+
+    match /users/{userId} {
+      allow read: if isSignedIn() && (request.auth.uid == userId || isAdmin());
+      allow create: if isSignedIn() && request.auth.uid == userId;
+      allow update: if (isAdmin() || (isSignedIn() && request.auth.uid == userId && incoming().diff(existing()).affectedKeys().hasOnly(['name', 'phone'])));
+    }
+
+    match /sessions/{sessionId} {
+      allow read: if isSignedIn();
+      allow create: if isAdmin();
+      allow update: if isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    match /reservations/{reservationId} {
+      allow read: if isSignedIn();
+      allow create: if isSignedIn();
+      allow update: if isAdmin() || (isSignedIn() && existing().userId == request.auth.uid && incoming().status == 'canceled');
+      allow delete: if isAdmin();
+    }
+
+    match /orders/{orderId} {
+      allow read: if isSignedIn() && (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAdmin(); // Orders usually created by admin at front desk
+      allow update, delete: if isAdmin();
+    }
+
+    match /admins/{adminId} {
+      allow read: if isSignedIn() && request.auth.uid == adminId;
+      allow write: if false; // Only manageable via Firebase Console or special script
+    }
+  }
+}

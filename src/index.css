@@ -1,0 +1,222 @@
+@import "tailwindcss";
+
+@variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-sans: "Inter", "Tahoma", "vazir", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+/* System-Wide Smooth Transitions */
+html, body, aside, main, header, div, section, article, nav, button, input, select, textarea {
+  transition-property: background-color, border-color, text-decoration-color, fill, stroke, box-shadow;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 350ms;
+}
+
+/* Base Layout & Theme Configuration */
+html {
+  font-size: 14px;
+}
+
+:root {
+  --primary-theme: #4f46e5;
+  --secondary-theme: #818cf8;
+  --accent-theme: #c7d2fe;
+}
+
+body {
+  @apply font-sans bg-[#dce1e8] text-slate-900 text-xs md:text-sm antialiased selection:bg-indigo-200 selection:text-indigo-900;
+}
+
+html.dark, html.dark body {
+  background-color: #020617 !important; /* Authentic Slate-950 Dark Canvas */
+}
+
+html.dark body {
+  @apply text-slate-100 selection:bg-indigo-900/50 selection:text-indigo-200;
+}
+
+/* Scrollbar Polish to match elegant dark/light presets */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  @apply bg-transparent;
+}
+::-webkit-scrollbar-thumb {
+  @apply bg-slate-400/60 dark:bg-slate-800 rounded-full hover:bg-slate-500 dark:hover:bg-slate-700 transition-colors;
+}
+
+/* Card and Container Spaces - Compact, Refined and Airy */
+.card-premium {
+  @apply bg-[#edf2f7] dark:bg-slate-900 border border-slate-300/90 dark:border-slate-800/80 rounded-2xl p-5 lg:p-6 shadow-sm hover:shadow-md transition-all duration-300;
+}
+
+/* 
+===================================================================
+LIGHT MODE THEME
+=================================================================== 
+*/
+html:not(.dark),
+html:not(.dark) body {
+  background-color: #dce1e8;
+  color: #0f172a;
+}
+
+/* Light mode form controls */
+html:not(.dark) input,
+html:not(.dark) select,
+html:not(.dark) textarea {
+  background-color: #ffffff;
+  border-color: #cbd5e1;
+  color: #0f172a;
+}
+
+html:not(.dark) input:focus,
+html:not(.dark) select:focus,
+html:not(.dark) textarea:focus {
+  border-color: #4f46e5;
+  background-color: #ffffff;
+}
+
+/* 
+===================================================================
+DARK MODE: Authentic Deep Slate & High-Contrast Visual Experience
+=================================================================== 
+*/
+.dark .bg-white {
+  background-color: #0f172a !important; /* Authentic Slate-900 Dark Card */
+  border-color: #1e293b !important;
+}
+
+/* Date, Time and Native Picker Controls in Dark Mode */
+.dark input[type="date"],
+.dark input[type="time"],
+.dark input[type="datetime-local"] {
+  color-scheme: dark !important;
+  background-color: #0f172a !important;
+  color: #f8fafc !important;
+  border-color: #334155 !important;
+}
+
+.dark input,
+.dark select,
+.dark textarea {
+  color-scheme: dark;
+  color: #f8fafc !important;
+}
+
+/* Ensure focus never reverts to white in dark mode */
+.dark input:focus,
+.dark select:focus,
+.dark textarea:focus,
+.dark .focus\:bg-white:focus {
+  background-color: #1e293b !important;
+  color: #ffffff !important;
+  border-color: #6366f1 !important;
+}
+
+.dark .text-gray-900 {
+  color: #f8fafc !important;
+}
+
+.dark .text-gray-800 {
+  color: #f1f5f9 !important;
+}
+
+.dark .text-gray-700 {
+  color: #e2e8f0 !important;
+}
+
+.dark .text-gray-600 {
+  color: #cbd5e1 !important;
+}
+
+.dark .text-gray-500 {
+  color: #94a3b8 !important;
+}
+
+.dark .text-gray-400 {
+  color: #64748b !important;
+}
+
+/* Dark mode panel background helpers */
+.dark .bg-gray-50 {
+  background-color: #090d16 !important; /* Seamless deep dark slate background */
+  border-color: #1e293b !important;
+}
+
+.dark .bg-gray-100 {
+  background-color: #1e293b !important;
+}
+
+.dark .border-gray-100 {
+  border-color: #1e293b !important;
+}
+
+.dark .border-gray-50 {
+  border-color: #1e293b !important;
+}
+
+.dark .hover\:bg-gray-50:hover {
+  background-color: #1e293b !important;
+}
+
+.dark .hover\:bg-gray-50\/50:hover {
+  background-color: #1e293b80 !important;
+}
+
+/* Beautiful dynamic shadow system for dark vs light mode */
+.shadow-xl, .shadow-2xl, .shadow-lg {
+  @apply shadow-slate-100/40;
+}
+.dark .shadow-xl, .dark .shadow-2xl, .dark .shadow-lg {
+  box-shadow: 0 12px 30px -4px rgba(5, 8, 16, 0.65) !important;
+}
+
+.dark .shadow-sm, .dark .shadow-md {
+  box-shadow: 0 4px 12px -1px rgba(5, 8, 16, 0.45) !important;
+}
+
+/* Page transitions, button animations & smooth hover lifts */
+.animate-hover-lift {
+  @apply transition-transform duration-300 hover:-translate-y-1.5 hover:shadow-lg dark:hover:shadow-black/30;
+}
+
+.bg-primary-theme { background-color: var(--primary-theme) !important; }
+.text-primary-theme { color: var(--primary-theme) !important; }
+.border-primary-theme { border-color: var(--primary-theme) !important; }
+.bg-secondary-theme { background-color: var(--secondary-theme) !important; }
+.text-secondary-theme { color: var(--secondary-theme) !important; }
+.bg-accent-theme { background-color: var(--accent-theme) !important; }
+
+/* Clean Invoice Printing Styles */
+@media print {
+  body {
+    background-color: white !important;
+    color: black !important;
+  }
+  body * {
+    visibility: hidden;
+  }
+  #printable-invoice, #printable-invoice * {
+    visibility: visible;
+  }
+  #printable-invoice {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    margin: auto;
+    width: 100% !important;
+    max-width: 480px !important;
+    background: white !important;
+    color: black !important;
+    box-shadow: none !important;
+    border: 1px dashed #777 !important;
+    border-radius: 12px !important;
+    padding: 24px !important;
+  }
+}

@@ -1,0 +1,118 @@
+{
+  "entities": {
+    "Console": {
+      "title": "دستگاه بازی",
+      "description": "اطلاعات کنسول‌های بازی (PS5, Xbox, ...)",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "نام یا شماره دستگاه" },
+        "type": { "type": "string", "description": "مدل کنسول (مثلا PS5)" },
+        "status": { "type": "string", "enum": ["idle", "active", "reserved", "maintenance"], "description": "وضعیت فعلی دستگاه" },
+        "currentSessionId": { "type": "string", "description": "شناسه نشست فعلی اگر فعال باشد" }
+      },
+      "required": ["name", "type", "status"]
+    },
+    "Product": {
+      "title": "محصول",
+      "description": "کالاهای قابل فروش در بوفه",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "نام محصول" },
+        "category": { "type": "string", "description": "دسته‌بندی (نوشیدنی، تنقلات و ...)" },
+        "price": { "type": "number", "description": "قیمت واحد" },
+        "stock": { "type": "number", "description": "موجودی انبار" }
+      },
+      "required": ["name", "category", "price", "stock"]
+    },
+    "User": {
+      "title": "مشتری",
+      "description": "اطلاعات مشتریان و سیستم سطح‌بندی",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "نام و نام خانوادگی" },
+        "phone": { "type": "string", "description": "شماره تماس" },
+        "tier": { "type": "string", "enum": ["bronze", "silver", "gold", "diamond"], "description": "سطح کاربری" },
+        "balance": { "type": "number", "description": "اعتبار کیف پول" },
+        "points": { "type": "number", "description": "امتیاز وفاداری" }
+      },
+      "required": ["name", "phone", "tier", "balance", "points"]
+    },
+    "Session": {
+      "title": "نشست بازی",
+      "description": "گزارش زمان بازی",
+      "type": "object",
+      "properties": {
+        "consoleId": { "type": "string", "description": "شناسه دستگاه" },
+        "userId": { "type": "string", "description": "شناسه مشتری (اختیاری برای مهمان)" },
+        "startTime": { "type": "string", "format": "date-time", "description": "زمان شروع" },
+        "endTime": { "type": "string", "format": "date-time", "description": "زمان پایان" },
+        "status": { "type": "string", "enum": ["running", "completed"], "description": "وضعیت نشست" },
+        "totalAmount": { "type": "number", "description": "مبلغ کل" }
+      },
+      "required": ["consoleId", "startTime", "status"]
+    },
+    "Reservation": {
+      "title": "رزرو",
+      "description": "رزرو دستگاه برای زمان خاص",
+      "type": "object",
+      "properties": {
+        "consoleId": { "type": "string", "description": "شناسه دستگاه" },
+        "userId": { "type": "string", "description": "شناسه مشتری" },
+        "startTime": { "type": "string", "format": "date-time", "description": "زمان شروع رزرو" },
+        "endTime": { "type": "string", "format": "date-time", "description": "زمان پایان رزرو" },
+        "status": { "type": "string", "enum": ["pending", "confirmed", "canceled"], "description": "وضعیت رزرو" }
+      },
+      "required": ["consoleId", "userId", "startTime", "endTime", "status"]
+    },
+    "Order": {
+      "title": "سفارش بوفه",
+      "description": "خرید نوشیدنی و خوراکی",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "description": "شناسه مشتری" },
+        "items": {
+          "type": "array",
+          "description": "لیست کالاها"
+        },
+        "totalAmount": { "type": "number", "description": "مبلغ کل سفارش" },
+        "createdAt": { "type": "string", "format": "date-time", "description": "زمان ثبت سفارش" }
+      },
+      "required": ["userId", "items", "totalAmount", "createdAt"]
+    },
+    "ClientTier": {
+      "title": "سطح وفاداری",
+      "description": "سطوح دسترسی و تخفیف مشتریان",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "نام سطح" },
+        "minPlayTime": { "type": "number", "description": "حداقل زمان بازی مورد نیاز (دقیقه)" },
+        "discountPercentage": { "type": "number", "description": "درصد تخفیف پیش‌فرض" },
+        "color": { "type": "string", "description": "رنگ نماد سطح" }
+      },
+      "required": ["name", "minPlayTime", "discountPercentage", "color"]
+    },
+    "Promotion": {
+      "title": "طرح تشویقی",
+      "description": "جشنواره‌ها و تخفیف‌های زمان‌دار کلوپ",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "description": "نام طرح" },
+        "discountPercentage": { "type": "number", "description": "درصد تخفیف" },
+        "startDate": { "type": "string", "format": "date-time", "description": "زمان شروع" },
+        "endDate": { "type": "string", "format": "date-time", "description": "زمان پایان" },
+        "isActive": { "type": "boolean", "description": "وضعیت فعال یا غیرفعال" }
+      },
+      "required": ["name", "discountPercentage", "startDate", "endDate", "isActive"]
+    }
+  },
+  "firestore": {
+    "/consoles/{consoleId}": { "schema": "Console", "description": "کنسول‌های بازی" },
+    "/products/{productId}": { "schema": "Product", "description": "محصولات بوفه" },
+    "/users/{userId}": { "schema": "User", "description": "مشتریان" },
+    "/sessions/{sessionId}": { "schema": "Session", "description": "نشست‌های بازی" },
+    "/reservations/{reservationId}": { "schema": "Reservation", "description": "رزروها" },
+    "/orders/{orderId}": { "schema": "Order", "description": "سفارشات بوفه" },
+    "/client_tiers/{tierId}": { "schema": "ClientTier", "description": "سطوح وفاداری مشتریان" },
+    "/promotions/{promotionId}": { "schema": "Promotion", "description": "طرح‌های تشویقی" }
+  }
+}
