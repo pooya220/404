@@ -92,7 +92,7 @@ export default function Products() {
   const { add, update, remove, batch } = useFirestore();
   
   const [activeTab, setActiveTab] = useState<ProductSection>('buffet');
-  const [storeCategoryFilter, setStoreCategoryFilter] = useState<string>(STATIONERY_CATEGORY);
+  const [storeCategoryFilter, setStoreCategoryFilter] = useState<string>('all');
   const [searchTerm, setSearchTerm] = useState('');
   const [printServices, setPrintServices] = useState<PrintService[]>(() => PRINT_SERVICES.map(service => ({ ...service })));
   const [editingPrintService, setEditingPrintService] = useState<PrintService | null>(null);
@@ -376,6 +376,8 @@ export default function Products() {
   const visiblePrintServices = printServices.filter(service =>
     !searchTerm || service.name.toLowerCase().includes(searchTerm.toLowerCase())
   );
+  const showPrintServices = activeTab === 'stationery'
+    && (storeCategoryFilter === 'all' || storeCategoryFilter === PRINT_CATEGORY);
 
   const openPrintServiceEditor = (service: PrintService) => {
     setEditingPrintService(service);
@@ -760,7 +762,7 @@ export default function Products() {
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full md:w-auto flex-wrap">
           {/* Action buttons (Brought completely out of card frame & grouped on the right of tabs in RTL) */}
           <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
-            {activeTab !== 'print' && <Button 
+            <Button 
               onClick={() => {
                 setExistPurchaseForm({
                   productId: '',
@@ -777,12 +779,12 @@ export default function Products() {
             >
               <Plus size={18} className="ml-1" />
               خرید
-            </Button>}
+            </Button>
             
             <Button 
                variant="outline" 
                onClick={() => {
-                 setPosCategory(activeTab === 'print' ? PRINT_CATEGORY : 'همه');
+                 setPosCategory('همه');
                  setQuickSaleSearch('');
                  setIsQuickSaleOpen(true);
                }}
@@ -802,19 +804,18 @@ export default function Products() {
           <SegmentToggle<ProductSection>
             options={[
               { id: 'buffet', label: 'خوراکی و نوشیدنی', icon: Coffee },
-              { id: 'print', label: 'پرینت', icon: ReceiptText },
               { id: 'stationery', label: 'لوازم‌التحریر', icon: ShoppingCart }
             ]}
             activeId={activeTab}
             onChange={setActiveTab}
-            activeColor={activeTab === 'buffet' ? 'indigo' : activeTab === 'print' ? 'amber' : 'emerald'}
+            activeColor={activeTab === 'buffet' ? 'indigo' : 'emerald'}
           />
         </div>
       </div>
 
       {activeTab === 'stationery' && (
         <div className="mb-5 flex flex-wrap items-center gap-2" dir="rtl" aria-label="فیلتر دسته‌بندی فروشگاه">
-          {[{ id: STATIONERY_CATEGORY, label: STATIONERY_CATEGORY }, ...LEGACY_SHOP_CATEGORIES.map(category => ({ id: category, label: category })), { id: 'all', label: 'همهٔ فروشگاه' }].map(option => (
+          {[{ id: STATIONERY_CATEGORY, label: STATIONERY_CATEGORY }, { id: PRINT_CATEGORY, label: PRINT_CATEGORY }, ...LEGACY_SHOP_CATEGORIES.map(category => ({ id: category, label: category })), { id: 'all', label: 'همهٔ فروشگاه' }].map(option => (
             <button
               key={option.id}
               type="button"
@@ -973,12 +974,13 @@ export default function Products() {
           <div className="flex items-center gap-2 text-xs text-gray-400 font-bold">
             <span>تعداد کالاها:</span>
             <Badge variant="info">
-              {formatPersianNumber(activeTab === 'print' ? visiblePrintServices.length : filteredProducts.length)} {activeTab === 'print' ? 'نوع خدمات چاپ' : 'قلم کالا'}
+              {formatPersianNumber(filteredProducts.length + (showPrintServices ? visiblePrintServices.length : 0))} قلم و خدمت
             </Badge>
           </div>
         </div>
 
-        {activeTab === 'print' ? (
+        <>
+        {showPrintServices && visiblePrintServices.length > 0 && (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-5">
             {visiblePrintServices.map(service => (
               <div
@@ -1013,12 +1015,8 @@ export default function Products() {
                 </button>
               </div>
             ))}
-            {visiblePrintServices.length === 0 && (
-              <div className="md:col-span-2 p-12 text-center text-sm font-bold text-gray-400">خدمت چاپی با این جست‌وجو پیدا نشد.</div>
-            )}
           </div>
-        ) : (
-          <>
+        )}
         <div className="hidden md:flex items-center gap-4 p-4 bg-slate-50/50 dark:bg-slate-900/20 text-[10px] font-black text-gray-400 uppercase tracking-widest border-b border-gray-100 dark:border-slate-800">
           <div className="w-12" />
           <div className="flex-1">نام و گروه بندی کالا</div>
@@ -1043,15 +1041,14 @@ export default function Products() {
                 defaultMinStock={defaultMinStock}
               />
             ))}
-            {filteredProducts.length === 0 && (
+            {filteredProducts.length === 0 && (!showPrintServices || visiblePrintServices.length === 0) && (
               <div className="p-20 text-center text-gray-400 dark:text-slate-500">
                 کالایی با فیلتر کنونی پیدا نشد.
               </div>
             )}
           </div>
         )}
-          </>
-        )}
+        </>
       </Card>
 
       {/* --- MODAL 1: Point of Sale (POS) Client Direct Sale --- */}
