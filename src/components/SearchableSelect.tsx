@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, ChevronDown, Check, User, X } from 'lucide-react';
+import { Search, ChevronDown, Check, User, UserPlus, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { cn } from '../lib/utils';
 
@@ -18,6 +18,9 @@ interface SearchableSelectProps {
   emptyMessage?: string;
   className?: string;
   allowClear?: boolean;
+  onCreateOption?: () => void;
+  createOptionLabel?: string;
+  createOptionSubLabel?: string;
 }
 
 export function SearchableSelect({ 
@@ -28,7 +31,10 @@ export function SearchableSelect({
   label,
   emptyMessage = 'موردی یافت نشد',
   className,
-  allowClear = true
+  allowClear = true,
+  onCreateOption,
+  createOptionLabel = 'ثبت مشتری جدید',
+  createOptionSubLabel = 'افزودن مشتری بدون خروج از این فرم'
 }: SearchableSelectProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [search, setSearch] = useState('');
@@ -120,6 +126,24 @@ export function SearchableSelect({
             </div>
 
             <div className="max-h-[250px] overflow-y-auto p-1 custom-scrollbar">
+              {onCreateOption && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onCreateOption();
+                    setIsOpen(false);
+                    setSearch('');
+                  }}
+                  className="w-full text-right px-4 py-3 rounded-xl flex items-center gap-2.5 mb-1 bg-indigo-50 dark:bg-indigo-950/40 text-indigo-700 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-900/60 hover:bg-indigo-100 dark:hover:bg-indigo-900/50 transition-all"
+                >
+                  <UserPlus size={17} className="shrink-0" />
+                  <span className="flex flex-col">
+                    <span className="font-black text-sm leading-none mb-1">{createOptionLabel}</span>
+                    <span className="text-[10px] opacity-70">{createOptionSubLabel}</span>
+                  </span>
+                </button>
+              )}
               {filteredOptions.length > 0 ? (
                 filteredOptions.map((opt) => (
                   <button
