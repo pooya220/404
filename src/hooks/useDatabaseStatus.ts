@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 export type DBStatus = 'CONNECTED' | 'DISCONNECTED' | 'ERROR' | 'LOCAL';
 
@@ -11,43 +11,53 @@ const getDatabaseMode = () => {
 export function useDatabaseStatus() {
   const [status, setStatus] = useState<DBStatus>('LOCAL');
   const [details, setDetails] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState(false);
+  const activeRef = useRef(true);
+
+  const checkStatus = useCallback(async () => {
+    const dbMode = getDatabaseMode();
+    if (dbMode !== 'mysql') {
+      if (activeRef.current) {
+        setStatus('LOCAL');
+        setDetails('پایگاه داده آفلاین (مرورگر)');
+      }
+      return;
+    }
+
+    try {
+      const res = await fetch('/api/mysql/status');
+      if (!res.ok) {
+        throw new Error('خطا در پاسخ سرور');
+      }
+      const data = await res.json();
+      if (activeRef.current) {
+        if (data.status === 'CONNECTED') {
+          setStatus('CONNECTED');
+          setDetails('اتصال به دیتابیس MySQL برقرار است');
+        } else {
+          setStatus('ERROR');
+          setDetails(data.error || 'خطا در اتصال به دیتابیس MySQL');
+        }
+      }
+    } catch (err: any) {
+      if (activeRef.current) {
+        setStatus('DISCONNECTED');
+        setDetails('عدم ارتباط با دیتابیس یا سرور');
+      }
+    }
+  }, []);
+
+  const refresh = useCallback(async () => {
+    setIsRefreshing(true);
+    try {
+      await checkStatus();
+    } finally {
+      if (activeRef.current) setIsRefreshing(false);
+    }
+  }, [checkStatus]);
 
   useEffect(() => {
-    let active = true;
-
-    const checkStatus = async () => {
-      const dbMode = getDatabaseMode();
-      if (dbMode !== 'mysql') {
-        if (active) {
-          setStatus('LOCAL');
-          setDetails('پایگاه داده آفلاین (مرورگر)');
-        }
-        return;
-      }
-
-      try {
-        const res = await fetch('/api/mysql/status');
-        if (!res.ok) {
-          throw new Error('خطا در پاسخ سرور');
-        }
-        const data = await res.json();
-        if (active) {
-          if (data.status === 'CONNECTED') {
-            setStatus('CONNECTED');
-            setDetails('اتصال به دیتابیس MySQL برقرار است');
-          } else {
-            setStatus('ERROR');
-            setDetails(data.error || 'خطا در اتصال به دیتابیس MySQL');
-          }
-        }
-      } catch (err: any) {
-        if (active) {
-          setStatus('DISCONNECTED');
-          setDetails('عدم ارتباط با دیتابیس یا سرور');
-        }
-      }
-    };
-
+    activeRef.current = true;
     // Check immediately and then every 10 seconds
     checkStatus();
     const interval = setInterval(checkStatus, 10000);
@@ -65,12 +75,12 @@ export function useDatabaseStatus() {
     window.addEventListener('offline', handleOffline);
 
     return () => {
-      active = false;
+      activeRef.current = false;
       clearInterval(interval);
       window.removeEventListener('online', handleOnline);
       window.removeEventListener('offline', handleOffline);
     };
-  }, []);
+  }, [checkStatus]);
 
-  return { status, details };
+  return { status, details, refresh, isRefreshing };
 }
