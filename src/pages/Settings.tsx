@@ -1287,7 +1287,46 @@ export default function Settings() {
 
   return (
     <div className="p-4 md:p-8 font-sans text-right pb-32 bg-[#f8fafc] dark:bg-slate-950/20 min-h-screen" dir="rtl">
-      <div className="max-w-7xl mx-auto">
+      <div className="max-w-7xl mx-auto space-y-6">
+        <header className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-indigo-100 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 flex items-center justify-center shrink-0">
+            <SettingsIcon size={23} />
+          </div>
+          <div>
+            <h1 className="text-xl md:text-2xl font-black text-slate-900 dark:text-white">تنظیمات و پیکربندی سیستم</h1>
+            <p className="mt-1 text-xs font-bold text-slate-500 dark:text-slate-400">بخش موردنظر را برای مدیریت تنظیمات انتخاب کنید.</p>
+          </div>
+        </header>
+
+        <nav aria-label="منوهای تنظیمات" className="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-2.5">
+          {sections.map(section => {
+            const SectionIcon = section.icon;
+            const isActive = activeTab === section.id;
+            return (
+              <button
+                key={section.id}
+                type="button"
+                aria-pressed={isActive}
+                onClick={() => setActiveTab(section.id)}
+                className={cn(
+                  "min-h-16 rounded-2xl border px-3 py-3 flex items-center gap-2.5 text-right transition-colors",
+                  isActive
+                    ? "bg-indigo-600 border-indigo-600 text-white shadow-md shadow-indigo-600/15"
+                    : "bg-white dark:bg-slate-900 border-slate-200 dark:border-slate-800 text-slate-700 dark:text-slate-300 hover:border-indigo-300 dark:hover:border-indigo-700 hover:bg-indigo-50/60 dark:hover:bg-indigo-950/20"
+                )}
+              >
+                <span className={cn(
+                  "w-9 h-9 rounded-xl flex items-center justify-center shrink-0",
+                  isActive ? "bg-white/15" : "bg-slate-100 dark:bg-slate-800 text-indigo-600 dark:text-indigo-400"
+                )}>
+                  <SectionIcon size={17} />
+                </span>
+                <span className="text-[11px] md:text-xs leading-5 font-black">{section.label}</span>
+              </button>
+            );
+          })}
+        </nav>
+
         <div className="w-full">
           <div className="w-full">
             <AnimatePresence mode="wait">
