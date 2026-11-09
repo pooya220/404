@@ -24,6 +24,8 @@ import {
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Card, Button, Badge } from '../components/ui/common';
+import { SearchableSelect } from '../components/SearchableSelect';
+import { InlineClientCreate } from '../components/InlineClientCreate';
 import { useCollection, useFirestore } from '../hooks/useFirestore';
 import { RepairItem, AppUser } from '../types';
 import { formatCurrency, formatPersianDigits, cn } from '../lib/utils';
@@ -76,6 +78,18 @@ export default function Repairs() {
   const [formError, setFormError] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [isCreatingCustomer, setIsCreatingCustomer] = useState(false);
+  const [inlineCreatedClient, setInlineCreatedClient] = useState<AppUser | null>(null);
+
+  const availableClients = useMemo(
+    () => [
+      ...(clients || []),
+      ...(inlineCreatedClient && !(clients || []).some(client => client.id === inlineCreatedClient.id)
+        ? [inlineCreatedClient]
+        : [])
+    ],
+    [clients, inlineCreatedClient]
+  );
 
   // Form State
   const [formData, setFormData] = useState<{
@@ -128,6 +142,8 @@ export default function Repairs() {
   const totalCalculated = Math.max(0, (Number(formData.partsCost) || 0) + (Number(formData.laborCost) || 0) - (Number(formData.discount) || 0));
 
   const handleOpenNewModal = (prefilledClientId?: string) => {
+    setIsCreatingCustomer(false);
+    setInlineCreatedClient(null);
     let clientObj: AppUser | undefined;
     if (prefilledClientId) {
       clientObj = (clients || []).find(c => c.id === prefilledClientId);
@@ -158,6 +174,8 @@ export default function Repairs() {
   };
 
   const handleEditModal = (item: RepairItem) => {
+    setIsCreatingCustomer(false);
+    setInlineCreatedClient(null);
     setEditingRepair(item);
     setFormError(null);
     setFormData({
@@ -190,7 +208,7 @@ export default function Repairs() {
       setFormData(prev => ({ ...prev, clientId: '', clientName: '', clientPhone: '' }));
       return;
     }
-    const found = (clients || []).find(c => c.id === cId);
+    const found = availableClients.find(c => c.id === cId);
     if (found) {
       setFormData(prev => ({
         ...prev,
@@ -199,6 +217,17 @@ export default function Repairs() {
         clientPhone: found.phone || '',
       }));
     }
+  };
+
+  const handleInlineCustomerCreated = (client: AppUser) => {
+    setInlineCreatedClient(client);
+    setFormData(prev => ({
+      ...prev,
+      clientId: client.id,
+      clientName: client.name,
+      clientPhone: client.phone || ''
+    }));
+    setIsCreatingCustomer(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -738,18 +767,17 @@ export default function Repairs() {
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                     <div>
                       <span className="text-[10px] text-gray-400 block mb-1">عضو باشگاه:</span>
-                      <select
+                      <SearchableSelect
+                        options={availableClients.filter(c => !c.isGuest).map(c => ({
+                          id: c.id,
+                          label: c.name,
+                          subLabel: c.phone || ''
+                        }))}
                         value={formData.clientId}
-                        onChange={e => handleClientSelect(e.target.value)}
-                        className="w-full h-10 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-3 text-xs font-bold outline-none"
-                      >
-                        <option value="">مشتری متفرقه / آزاد</option>
-                        {(clients || []).filter(c => !c.isGuest).map(c => (
-                          <option key={c.id} value={c.id}>
-                            {c.name} {c.phone ? `(${c.phone})` : ''}
-                          </option>
-                        ))}
-                      </select>
+                        onChange={handleClientSelect}
+                        placeholder="مشتری متفرقه / آزاد"
+                        onCreateOption={() => setIsCreatingCustomer(true)}
+                      />
                     </div>
 
                     <div>
@@ -775,6 +803,12 @@ export default function Repairs() {
                       />
                     </div>
                   </div>
+                  {isCreatingCustomer && (
+                    <InlineClientCreate
+                      onCreated={handleInlineCustomerCreated}
+                      onCancel={() => setIsCreatingCustomer(false)}
+                    />
+                  )}
                 </div>
 
                 {/* Device Info */}
