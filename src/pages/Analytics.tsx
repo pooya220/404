@@ -64,6 +64,89 @@ import { motion, AnimatePresence } from 'motion/react';
 
 const COLORS = ['#6366f1', '#f59e0b', '#10b981', '#ef4444', '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'];
 
+type DateRangeInputs = { start: string; end: string };
+type DateRangeBounds = { start?: Date; end?: Date; valid: boolean };
+
+const createRecentDateRange = (): DateRangeInputs => {
+  const today = new Date();
+  const end = new Date(today.getFullYear(), today.getMonth(), today.getDate());
+  const start = new Date(end);
+  start.setDate(start.getDate() - 29);
+  return { start: localDateInput(start), end: localDateInput(end) };
+};
+
+const parseDateRange = (inputs: DateRangeInputs): DateRangeBounds => {
+  const parseDate = (value: string, isEnd: boolean) => {
+    const [year, month, day] = value.split('-').map(Number);
+    if (!year || !month || !day) return undefined;
+    const date = isEnd
+      ? new Date(year, month - 1, day, 23, 59, 59, 999)
+      : new Date(year, month - 1, day, 0, 0, 0, 0);
+    if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) return undefined;
+    return date;
+  };
+  const start = parseDate(inputs.start, false);
+  const end = parseDate(inputs.end, true);
+  return { start, end, valid: !!start && !!end && start <= end };
+};
+
+const formatDateRangeLabel = (range: DateRangeBounds) => range.valid
+  ? `${formatJalali(range.start!, 'yyyy/MM/dd')} تا ${formatJalali(range.end!, 'yyyy/MM/dd')}`
+  : 'بازهٔ انتخابی نامعتبر';
+
+function DateRangeFilter({
+  start,
+  end,
+  label,
+  onStartChange,
+  onEndChange,
+}: {
+  start: string;
+  end: string;
+  label: string;
+  onStartChange: (value: string) => void;
+  onEndChange: (value: string) => void;
+}) {
+  const error = !start || !end
+    ? 'هر دو تاریخ را انتخاب کنید.'
+    : start > end
+      ? 'تاریخ شروع باید قبل از تاریخ پایان باشد.'
+      : '';
+
+  return (
+    <div className="rounded-2xl border border-slate-200 dark:border-slate-700 bg-slate-50/70 dark:bg-slate-800/60 p-3" aria-label={label}>
+      <p className="mb-2 text-[10px] font-black text-slate-500 dark:text-slate-400">{label}</p>
+      <div className="flex flex-wrap items-center gap-2.5">
+        <label className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 dark:text-slate-400">
+          <span>از</span>
+          <input
+            type="date"
+            dir="ltr"
+            value={start}
+            max={localDateInput()}
+            onChange={event => onStartChange(event.target.value)}
+            aria-label={`${label}، تاریخ شروع`}
+            className="h-9 w-32 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-2 text-[11px] font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-indigo-500"
+          />
+        </label>
+        <label className="flex items-center gap-1.5 text-[10px] font-bold text-slate-500 dark:text-slate-400">
+          <span>تا</span>
+          <input
+            type="date"
+            dir="ltr"
+            value={end}
+            max={localDateInput()}
+            onChange={event => onEndChange(event.target.value)}
+            aria-label={`${label}، تاریخ پایان`}
+            className="h-9 w-32 rounded-lg border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-900 px-2 text-[11px] font-bold text-slate-700 dark:text-slate-200 outline-none focus:border-indigo-500"
+          />
+        </label>
+      </div>
+      {error && <p className="mt-2 text-[10px] font-bold text-rose-500">{error}</p>}
+    </div>
+  );
+}
+
 export default function Analytics() {
   const { data: settingsList } = useCollection<SystemSettings>('settings');
   const { data: consoles } = useCollection<Console>('consoles');
@@ -93,6 +176,8 @@ export default function Analytics() {
   }));
   const [periodStartInput, setPeriodStartInput] = useState(() => localDateInput(initialJalaliMonthRange.start));
   const [periodEndInput, setPeriodEndInput] = useState(() => localDateInput(initialJalaliMonthRange.end));
+  const [revenueTrendRangeInputs, setRevenueTrendRangeInputs] = useState<DateRangeInputs>(createRecentDateRange);
+  const [topClientsRangeInputs, setTopClientsRangeInputs] = useState<DateRangeInputs>(createRecentDateRange);
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [selectedClientChartMonth, setSelectedClientChartMonth] = useState<string | null>(null);
   const [activeSegment, setActiveSegment] = useState<'performance' | 'shareholders'>('performance');
@@ -132,6 +217,9 @@ export default function Analytics() {
     return { start, end, valid: !!start && !!end && start <= end };
   }, [analyticsMode, periodStartInput, periodEndInput]);
 
+  const revenueTrendRange = useMemo(() => parseDateRange(revenueTrendRangeInputs), [revenueTrendRangeInputs]);
+  const topClientsRange = useMemo(() => parseDateRange(topClientsRangeInputs), [topClientsRangeInputs]);
+
   const isWithinAnalyticsPeriod = (date: any) => analyticsMode === 'all'
     || (!!periodBounds.valid && inPeriod(date, periodBounds.start, periodBounds.end));
   const selectedPeriodLabel = analyticsMode === 'all'
@@ -145,11 +233,17 @@ export default function Analytics() {
     () => completedSessions.filter(session => isWithinAnalyticsPeriod(sessionDate(session))),
     [completedSessions, analyticsMode, periodBounds]
   );
-  // Customer visits are dated by when play started, not when the session was
-  // checked out. This keeps overnight/long sessions on the actual visit day.
-  const clientPeriodSessions = useMemo(
-    () => completedSessions.filter(session => isWithinAnalyticsPeriod(customerSessionDate(session))),
-    [completedSessions, analyticsMode, periodBounds]
+  // Customer ranking uses play start time and its own date filter, independent
+  // of the page-wide period used by the other financial summaries.
+  const topClientsRangeSessions = useMemo(
+    () => topClientsRange.valid
+      ? completedSessions.filter(session => inPeriod(customerSessionDate(session), topClientsRange.start, topClientsRange.end))
+      : [],
+    [completedSessions, topClientsRange]
+  );
+  const topClientsRangeSales = useMemo(
+    () => (sales || []).filter((sale: any) => isRevenueSale(sale) && topClientsRange.valid && inPeriod(sale.timestamp, topClientsRange.start, topClientsRange.end)),
+    [sales, topClientsRange]
   );
   const periodSales = useMemo(
     () => (sales || []).filter((sale: any) => isRevenueSale(sale) && isWithinAnalyticsPeriod(sale.timestamp)),
@@ -227,7 +321,7 @@ export default function Analytics() {
 
   // --- 0. Customer Performance Analysis ---
   const clientPerformance = useMemo(() => {
-    if (!clients || !sessions || !sales || !periodBounds.valid) return [];
+    if (!clients || !sessions || !sales || !topClientsRange.valid) return [];
 
     const stats: Record<string, { id: string, name: string, visitCount: number, totalSpend: number, lastVisit: string | null, repairsCount: number }> = {};
 
@@ -235,7 +329,7 @@ export default function Analytics() {
       stats[c.id] = { id: c.id, name: c.name, visitCount: 0, totalSpend: 0, lastVisit: null, repairsCount: 0 };
     });
 
-    clientPeriodSessions.forEach(s => {
+    topClientsRangeSessions.forEach(s => {
       for (const uid of s.userIds?.length ? s.userIds : [s.userId]) {
         if (!uid || !stats[uid]) continue;
         stats[uid].visitCount++; stats[uid].totalSpend += clientSessionShare(s, uid);
@@ -244,7 +338,7 @@ export default function Analytics() {
       }
     });
 
-    periodSales.forEach((sale: any) => {
+    topClientsRangeSales.forEach((sale: any) => {
       const uId = sale.userId || sale.clientId;
       if (isRevenueSale(sale) && uId && stats[uId]) {
         stats[uId].totalSpend += (sale.totalAmount || 0);
@@ -254,10 +348,10 @@ export default function Analytics() {
       }
     });
 
-    periodRepairs.forEach((r: any) => {
+    (repairs || []).forEach((r: any) => {
       const uId = r.clientId;
       if (uId && stats[uId]) {
-        const receipts = repairReceipts(r).filter(p => isWithinAnalyticsPeriod(p.date));
+        const receipts = repairReceipts(r).filter(p => inPeriod(p.date, topClientsRange.start, topClientsRange.end));
         const cost = receipts.reduce((sum, receipt) => sum + money(receipt.amount), 0);
         if (cost <= 0) return;
         stats[uId].totalSpend += cost;
@@ -272,7 +366,7 @@ export default function Analytics() {
     return Object.values(stats)
       .sort((a, b) => b.totalSpend - a.totalSpend)
       .filter(c => c.totalSpend > 0 || c.visitCount > 0 || c.repairsCount > 0);
-  }, [clients, sessions, sales, clientPeriodSessions, periodSales, periodRepairs, periodBounds, analyticsMode]);
+  }, [clients, sessions, sales, repairs, topClientsRangeSessions, topClientsRangeSales, topClientsRange]);
 
   const selectedClientHistory = useMemo(() => {
     if (!selectedClientId) return [];
@@ -452,45 +546,30 @@ export default function Analytics() {
 
   // --- 1. Revenue Over Time (Daily) ---
   const revenueTrend = useMemo(() => {
-    if (analyticsMode === 'period' && !periodBounds.valid) return [];
+    const rangeStart = revenueTrendRange.start;
+    const rangeEnd = revenueTrendRange.end;
+    if (!revenueTrendRange.valid || !rangeStart || !rangeEnd) return [];
     const trends: Record<string, { date: string, game: number, buffet: number, repair: number, total: number, order: number }> = {};
-    const useMonthlyBuckets = analyticsMode === 'period'
-      && !!periodBounds.start && !!periodBounds.end
-      && periodBounds.end.getTime() - periodBounds.start.getTime() > 120 * 24 * 60 * 60 * 1000;
-    const currentOperationalKey = getOperationalDayKey(new Date(), dayResetHour, dayResetMinute);
-    const currentOperationalDay = new Date(currentOperationalKey);
-    currentOperationalDay.setHours(0, 0, 0, 0);
+    const useMonthlyBuckets = rangeEnd.getTime() - rangeStart.getTime() > 120 * 24 * 60 * 60 * 1000;
 
-    if (analyticsMode === 'all') {
-      const transactionDates = [
-        ...periodSessions.map(session => sessionDate(session)),
-        ...periodSales.map((sale: any) => sale.timestamp),
-        ...periodRepairs.flatMap((repair: any) => repairReceipts(repair).map(receipt => receipt.date)),
-      ].map(value => new Date(value)).filter(date => Number.isFinite(date.getTime()));
-      if (transactionDates.length) {
-        const firstTransaction = transactionDates.reduce((first, date) => date < first ? date : first);
-        const firstOperationalDay = new Date(getOperationalDayKey(firstTransaction, dayResetHour, dayResetMinute));
-        firstOperationalDay.setHours(dayResetHour, dayResetMinute, 0, 0);
-        const cursor = new Date(firstOperationalDay);
-        const endOfCurrentDay = new Date(currentOperationalKey);
-        endOfCurrentDay.setHours(dayResetHour, dayResetMinute, 0, 0);
-        while (cursor <= endOfCurrentDay) {
-          const key = getOperationalDayKey(cursor, dayResetHour, dayResetMinute);
-          trends[key] = {
-            date: formatJalali(cursor, 'yyyy/MM/dd'),
-            game: 0,
-            buffet: 0,
-            repair: 0,
-            total: 0,
-            order: new Date(key).getTime(),
-          };
-          cursor.setDate(cursor.getDate() + 1);
-        }
+    if (useMonthlyBuckets) {
+      const cursor = new Date(rangeStart.getFullYear(), rangeStart.getMonth(), 1);
+      while (cursor <= rangeEnd) {
+        const key = `${cursor.getFullYear()}-${String(cursor.getMonth() + 1).padStart(2, '0')}`;
+        trends[key] = {
+          date: formatJalali(cursor, 'yyyy/MM'),
+          game: 0,
+          buffet: 0,
+          repair: 0,
+          total: 0,
+          order: cursor.getTime(),
+        };
+        cursor.setMonth(cursor.getMonth() + 1);
       }
-    } else if (!useMonthlyBuckets && periodBounds.start && periodBounds.end) {
-      const cursor = new Date(periodBounds.start);
+    } else {
+      const cursor = new Date(rangeStart);
       cursor.setHours(dayResetHour, dayResetMinute, 0, 0);
-      while (cursor <= periodBounds.end) {
+      while (cursor <= rangeEnd) {
         const key = getOperationalDayKey(cursor, dayResetHour, dayResetMinute);
         trends[key] = { date: formatJalali(new Date(key), 'MM/dd'), game: 0, buffet: 0, repair: 0, total: 0, order: new Date(key).getTime() };
         cursor.setDate(cursor.getDate() + 1);
@@ -500,16 +579,15 @@ export default function Analytics() {
     const processDate = (dateStr: string, gameAmt: number, buffetAmt: number, repairAmt = 0) => {
       if (!dateStr) return;
       const date = new Date(dateStr);
-      if (!Number.isFinite(date.getTime())) return;
+      if (!Number.isFinite(date.getTime()) || !inPeriod(date, rangeStart, rangeEnd)) return;
       const operationalKey = getOperationalDayKey(date, dayResetHour, dayResetMinute);
-      if (analyticsMode === 'all' && new Date(operationalKey).setHours(0, 0, 0, 0) > currentOperationalDay.getTime()) return;
       const key = useMonthlyBuckets
         ? `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`
         : operationalKey;
       const entry = trends[key] || (trends[key] = {
         date: useMonthlyBuckets
           ? formatJalali(date, 'yyyy/MM')
-          : formatJalali(new Date(operationalKey), analyticsMode === 'all' ? 'yyyy/MM/dd' : 'MM/dd'),
+          : formatJalali(new Date(operationalKey), 'MM/dd'),
         game: 0,
         buffet: 0,
         repair: 0,
@@ -522,20 +600,23 @@ export default function Analytics() {
       entry.total += gameAmt + buffetAmt + repairAmt;
     };
 
-    periodSessions.forEach(session => {
+    const rangeSessions = completedSessions.filter(session => inPeriod(sessionDate(session), rangeStart, rangeEnd));
+    const rangeSales = (sales || []).filter((sale: any) => isRevenueSale(sale) && inPeriod(sale.timestamp, rangeStart, rangeEnd));
+
+    rangeSessions.forEach(session => {
       const amounts = sessionAmounts(session);
       processDate(sessionDate(session), amounts.game, amounts.buffet);
     });
-    periodSales.forEach((sale: any) => {
+    rangeSales.forEach((sale: any) => {
       const amounts = saleAmounts(sale, products);
       processDate(sale.timestamp, amounts.game, amounts.buffet + amounts.shop);
     });
-    periodRepairs.forEach((repair: any) => repairReceipts(repair)
-      .filter(receipt => isWithinAnalyticsPeriod(receipt.date))
+    (repairs || []).forEach((repair: any) => repairReceipts(repair)
+      .filter(receipt => inPeriod(receipt.date, rangeStart, rangeEnd))
       .forEach(receipt => processDate(receipt.date, 0, 0, receipt.amount)));
 
     return Object.values(trends).sort((a, b) => a.order - b.order).map(({ order: _order, ...entry }) => entry);
-  }, [periodSessions, periodSales, periodRepairs, analyticsMode, periodBounds, dayResetHour, dayResetMinute, products]);
+  }, [completedSessions, sales, repairs, revenueTrendRange, dayResetHour, dayResetMinute, products]);
 
   // --- 1.1 Repairs & Hardware Services Performance ---
   const repairPerformance = useMemo(() => {
@@ -1102,30 +1183,39 @@ export default function Analytics() {
 
       {/* Main Revenue Trend Chart */}
       <Card className="p-8">
-        <div className="flex items-center justify-between mb-10">
-          <div className="flex items-center gap-3">
-            <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center shadow-sm">
-              <TrendingUp size={24} />
+        <div className="mb-8 space-y-5">
+          <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-5">
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-indigo-50 text-indigo-600 rounded-2xl flex items-center justify-center shadow-sm">
+                <TrendingUp size={24} />
+              </div>
+              <div>
+                <h3 className="text-lg font-black text-gray-900">روند درآمد · {formatDateRangeLabel(revenueTrendRange)}</h3>
+                <p className="text-xs text-gray-400 font-medium">مقایسه تفکیکی درآمد بازی، بوفه و تعمیرات</p>
+              </div>
             </div>
-            <div>
-            <h3 className="text-lg font-black text-gray-900">روند درآمد · {selectedPeriodLabel}</h3>
-              <p className="text-xs text-gray-400 font-medium">مقایسه تفکیکی درآمد بازی، بوفه و تعمیرات از مبدا صفر</p>
+            <div className="flex flex-wrap gap-4">
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-indigo-500" />
+                <span className="text-[11px] font-bold text-gray-600">بازی</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-amber-400" />
+                <span className="text-[11px] font-bold text-gray-600">بوفه و فروشگاه</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full bg-teal-500" />
+                <span className="text-[11px] font-bold text-gray-600">تعمیرات و خدمات</span>
+              </div>
             </div>
           </div>
-          <div className="flex flex-wrap gap-4">
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-indigo-500" />
-              <span className="text-[11px] font-bold text-gray-600">بازی</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-amber-400" />
-              <span className="text-[11px] font-bold text-gray-600">بوفه و فروشگاه</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <div className="w-3 h-3 rounded-full bg-teal-500" />
-              <span className="text-[11px] font-bold text-gray-600">تعمیرات و خدمات</span>
-            </div>
-          </div>
+          <DateRangeFilter
+            label="بازهٔ نمودار روند درآمد"
+            start={revenueTrendRangeInputs.start}
+            end={revenueTrendRangeInputs.end}
+            onStartChange={start => setRevenueTrendRangeInputs(current => ({ ...current, start }))}
+            onEndChange={end => setRevenueTrendRangeInputs(current => ({ ...current, end }))}
+          />
         </div>
         
         <div className="h-[400px] w-full" dir="ltr">
@@ -1544,9 +1634,19 @@ export default function Analytics() {
               </div>
               <div>
                 <h3 className="font-black text-gray-900">مشتریان برتر</h3>
-                <p className="text-[10px] text-gray-400 font-bold italic">رتبه‌بندی بر اساس حجم پرداختی کل</p>
+                <p className="text-[10px] text-gray-400 font-bold italic">پرداختی در بازهٔ {formatDateRangeLabel(topClientsRange)}</p>
               </div>
             </div>
+          </div>
+
+          <div className="mb-5">
+            <DateRangeFilter
+              label="بازهٔ مشتریان برتر"
+              start={topClientsRangeInputs.start}
+              end={topClientsRangeInputs.end}
+              onStartChange={start => setTopClientsRangeInputs(current => ({ ...current, start }))}
+              onEndChange={end => setTopClientsRangeInputs(current => ({ ...current, end }))}
+            />
           </div>
           
           <div className="space-y-3 overflow-y-auto max-h-[600px] pr-2 custom-scrollbar">
@@ -1590,7 +1690,7 @@ export default function Analytics() {
             {clientPerformance.length === 0 && (
               <div className="py-20 text-center">
                  <Users className="mx-auto text-gray-300 mb-4" size={48} />
-                 <p className="text-sm font-bold text-gray-400">داده‌ای یافت نشد</p>
+                 <p className="text-sm font-bold text-gray-400">{topClientsRange.valid ? 'در بازهٔ انتخابی داده‌ای یافت نشد' : 'بازهٔ انتخابی معتبر نیست'}</p>
               </div>
             )}
           </div>
