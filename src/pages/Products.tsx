@@ -222,7 +222,7 @@ export default function Products() {
   // --- Auto Alert System States ---
   const [isAlertMuted, setIsAlertMuted] = useState(() => localStorage.getItem('alert_muted') === 'true');
   const [hasPlayedAlarmOnLoad, setHasPlayedAlarmOnLoad] = useState(false);
-  const [isAlertsPanelOpen, setIsAlertsPanelOpen] = useState(true);
+  const [isAlertsPanelOpen, setIsAlertsPanelOpen] = useState(false);
 
   // Helper sound player (Standard Web Audio API Chime)
   const playAlertSound = () => {
