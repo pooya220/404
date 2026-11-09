@@ -12,6 +12,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { formatPersianNumber, formatCurrency, cn, formatPersianDigits } from '../lib/utils';
 import { SearchableSelect } from '../components/SearchableSelect';
+import { InlineClientCreate } from '../components/InlineClientCreate';
 import { LEGACY_SHOP_CATEGORIES, PRINT_CATEGORY, PRINT_SERVICES, STATIONERY_CATEGORY, productBelongsToSection, type PrintService, type ProductSection } from '../lib/productCategories';
 
 type CartItem = { id: string; name: string; price: number; quantity: number; category: string; isService?: boolean };
@@ -161,6 +162,7 @@ export default function Products() {
   const [quickSaleSearch, setQuickSaleSearch] = useState('');
   const [posCategory, setPosCategory] = useState<string>('همه');
   const [selectedCustomerId, setSelectedCustomerId] = useState('');
+  const [isCreatingCustomer, setIsCreatingCustomer] = useState(false);
   const [cart, setCart] = useState<CartItem[]>([]);
   const [applyTax, setApplyTax] = useState(true);
   
@@ -1077,24 +1079,38 @@ export default function Products() {
 
                   {/* Customer Quick lookup container */}
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-                     <SearchableSelect 
-                       label="انتخاب مراجع یا مهمان"
-                       placeholder="جستجوی نام یا تلفن مشتری..."
-                       options={(clients || []).map((c: any) => ({
-                         id: c.id,
-                         label: c.name,
-                         subLabel: c.isGuest ? 'مشتری پیش‌فرض' : `کیف پول: ${formatCurrency(c.balance || 0)}`
-                       }))}
-                       value={selectedCustomerId}
-                       onChange={(val) => {
-                         setSelectedCustomerId(val);
-                         // If paying from wallet and no wallet or guest is chosen, default back to CARD
-                         const found = clients?.find((c: any) => c.id === val);
-                         if (!found || found.isGuest) {
-                           setPaymentMethod('card');
-                         }
-                       }}
-                     />
+                     <div className="space-y-2">
+                       <SearchableSelect 
+                         label="انتخاب مراجع یا مهمان"
+                         placeholder="جستجوی نام یا تلفن مشتری..."
+                         options={(clients || []).map((c: any) => ({
+                           id: c.id,
+                           label: c.name,
+                           subLabel: c.isGuest ? 'مشتری پیش‌فرض' : `کیف پول: ${formatCurrency(c.balance || 0)}`
+                         }))}
+                         value={selectedCustomerId}
+                         onChange={(val) => {
+                           setSelectedCustomerId(val);
+                           // If paying from wallet and no wallet or guest is chosen, default back to CARD
+                           const found = clients?.find((c: any) => c.id === val);
+                           if (!found || found.isGuest) {
+                             setPaymentMethod('card');
+                           }
+                         }}
+                         onCreateOption={() => setIsCreatingCustomer(true)}
+                       />
+
+                       {isCreatingCustomer && (
+                         <InlineClientCreate
+                           onCreated={(client) => {
+                             setSelectedCustomerId(client.id);
+                             setIsCreatingCustomer(false);
+                             setPaymentMethod('card');
+                           }}
+                           onCancel={() => setIsCreatingCustomer(false)}
+                         />
+                       )}
+                     </div>
                      
                      <div className="relative text-right h-12 mt-auto">
                         <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-400" size={16} />
