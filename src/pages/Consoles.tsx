@@ -43,6 +43,7 @@ import {
 import { motion, AnimatePresence } from 'motion/react';
 import { cn, formatPersianNumber, formatPersianDigits } from '../lib/utils';
 import { SearchableSelect } from '../components/SearchableSelect';
+import { InlineClientCreate } from '../components/InlineClientCreate';
 import { playAlertSound } from '../utils/soundAlerts';
 
 // --- Utility Helpers ---
@@ -605,6 +606,7 @@ export default function Consoles() {
   const [isAddTariffOpen, setIsAddTariffOpen] = useState(false);
   const [confirmDeleteModal, setConfirmDeleteModal] = useState<{ isOpen: boolean, type: 'console' | 'tariff', id: string }>({ isOpen: false, type: 'console', id: '' });
   const [startSessionModal, setStartSessionModal] = useState<{ isOpen: boolean, consoleId: string }>({ isOpen: false, consoleId: '' });
+  const [inlineCustomerTarget, setInlineCustomerTarget] = useState<'session' | 'checkout' | null>(null);
   const [actionModal, setActionModal] = useState<{ isOpen: boolean, type: string, session: Session | null }>({ isOpen: false, type: '', session: null });
   const [actionModalTab, setActionModalTab] = useState<'limit' | 'tariff' | 'console'>('limit');
   const [editLimitType, setEditLimitType] = useState<'none' | 'time' | 'amount'>('none');
@@ -645,6 +647,21 @@ export default function Consoles() {
   });
   const [usePastSessionStart, setUsePastSessionStart] = useState(false);
   const [pastSessionStart, setPastSessionStart] = useState(() => localDateTimeInput());
+
+  const handleInlineCustomerCreated = (client: AppUser) => {
+    if (inlineCustomerTarget === 'session') {
+      setSessionForm(prev => {
+        const userIds = [...new Set([...(prev.userIds || []), client.id])];
+        return { ...prev, userIds, userId: prev.userId || client.id };
+      });
+    } else if (inlineCustomerTarget === 'checkout') {
+      setCheckoutModal(prev => ({
+        ...prev,
+        sessionUserIds: [...new Set([...(prev.sessionUserIds || []), client.id])]
+      }));
+    }
+    setInlineCustomerTarget(null);
+  };
 
   // Console logic
   const handleAddConsole = async (e: React.FormEvent) => {
@@ -985,6 +1002,67 @@ export default function Consoles() {
     } catch (err: any) { alert(err.message); } finally { checkoutLock.current = false; }
   };
 
+  const handleUpdateSessionItem = async (session: Session, productId: string, delta: number, product?: Product) => {
+    const addedItems = session.addedItems || [];
+    const itemIdx = addedItems.findIndex(item => item.productId === productId);
+    let newItems = [...addedItems];
+
+    if (delta > 0) {
+      if (itemIdx > -1) {
+        newItems[itemIdx] = { ...newItems[itemIdx], quantity: newItems[itemIdx].quantity + delta };
+      } else if (product) {
+        newItems.push({
+          productId: product.id,
+          name: product.name,
+          price: product.price,
+          quantity: delta
+        });
+      }
+    } else if (itemIdx > -1) {
+      const item = newItems[itemIdx];
+      const nextQuantity = item.quantity + delta;
+      if (nextQuantity > 0) newItems[itemIdx] = { ...item, quantity: nextQuantity };
+      else newItems.splice(itemIdx, 1);
+    }
+
+    if (newItems === addedItems || JSON.stringify(newItems) === JSON.stringify(addedItems)) return;
+
+    try {
+      await update('sessions', session.id, { addedItems: newItems });
+      const updatedSession = { ...session, addedItems: newItems };
+
+      if (actionModal.session?.id === session.id) {
+        setActionModal(prev => ({ ...prev, session: updatedSession }));
+      }
+
+      if (checkoutModal.isOpen && checkoutModal.session?.id === session.id && checkoutModal.finalData) {
+        const changedItem = (delta > 0 ? newItems : addedItems).find(item => item.productId === productId);
+        const itemPrice = changedItem?.price || product?.price || 0;
+        const newProductsCost = Math.max(0, checkoutModal.finalData.productsCost + (itemPrice * delta));
+        const newSubtotal = checkoutModal.finalData.sessionCost + newProductsCost;
+        const newTaxAmount = checkoutModal.isTaxApplied ? Math.round((newSubtotal * taxRate) / 100) : 0;
+        const adjustment = checkoutModal.adjustmentType === 'discount'
+          ? -(Number(checkoutModal.adjustmentAmount) || 0)
+          : checkoutModal.adjustmentType === 'addition'
+            ? (Number(checkoutModal.adjustmentAmount) || 0)
+            : 0;
+
+        setCheckoutModal(prev => ({
+          ...prev,
+          session: updatedSession,
+          finalData: {
+            ...prev.finalData,
+            productsCost: newProductsCost,
+            taxAmount: newTaxAmount,
+            total: Math.max(0, newSubtotal + newTaxAmount + adjustment)
+          }
+        }));
+      }
+    } catch (error: any) {
+      alert(error?.message || 'تغییر تعداد کالای بوفه انجام نشد.');
+    }
+  };
+
   const handleSessionAction = async (type: string, data: any) => {
     if (!actionModal.session) return;
     const sess = actionModal.session;
@@ -1076,23 +1154,9 @@ export default function Consoles() {
       });
       setActionModal({ isOpen: false, type: '', session: null });
     } else if (type === 'add_product') {
-      const addedItems = sess.addedItems || [];
-      const existingIdx = addedItems.findIndex(i => i.productId === data.product.id);
-      let newItems = [...addedItems];
-      if (existingIdx > -1) {
-        newItems[existingIdx].quantity += 1;
-      } else {
-        newItems.push({ 
-          productId: data.product.id, 
-          name: data.product.name, 
-          price: data.product.price, 
-          quantity: 1 
-        });
-      }
-      
-      // Update session items
-      await update('sessions', sess.id, { addedItems: newItems });
-      
+      await handleUpdateSessionItem(sess, data.product.id, 1, data.product);
+      return;
+
     } else if (type === 'update_limit') {
       const limitType = data.limitType || 'none';
       const limitValue = limitType === 'none' ? 0 : Number(data.limitValue || 0);
@@ -1106,44 +1170,9 @@ export default function Consoles() {
   };
 
   const handleRemoveItem = async (session: Session, productId: string) => {
-    const addedItems = session.addedItems || [];
-    const itemIdx = addedItems.findIndex(i => i.productId === productId);
-    if (itemIdx === -1) return;
-
-    let newItems = [...addedItems];
-    const item = newItems[itemIdx];
-    const removedPrice = item.price;
-
-    if (item.quantity > 1) {
-      newItems[itemIdx] = { ...item, quantity: item.quantity - 1 };
-    } else {
-      newItems.splice(itemIdx, 1);
-    }
-
-    // Update session in DB
-    await update('sessions', session.id, { addedItems: newItems });
-
-    // If checkout modal is open, we need to update its local state too
-    if (checkoutModal.isOpen && checkoutModal.session?.id === session.id) {
-      const currentFinalData = checkoutModal.finalData;
-      if (currentFinalData) {
-        const newProductsCost = currentFinalData.productsCost - removedPrice;
-        const newSubtotal = currentFinalData.sessionCost + newProductsCost;
-        const newTaxAmount = checkoutModal.isTaxApplied ? Math.round((newSubtotal * taxRate) / 100) : 0;
-        const adjustment = checkoutModal.adjustmentType === "discount" ? -(Number(checkoutModal.adjustmentAmount) || 0) : checkoutModal.adjustmentType === "addition" ? (Number(checkoutModal.adjustmentAmount) || 0) : 0;
-        
-        setCheckoutModal({
-          ...checkoutModal,
-          session: { ...session, addedItems: newItems },
-          finalData: {
-            ...currentFinalData,
-            productsCost: newProductsCost,
-            taxAmount: newTaxAmount,
-            total: Math.max(0, newSubtotal + newTaxAmount + adjustment)
-          }
-        });
-      }
-    }
+    const item = (session.addedItems || []).find(entry => entry.productId === productId);
+    if (!item) return;
+    await handleUpdateSessionItem(session, productId, -Math.max(1, item.quantity));
   };
 
   if (consolesLoading || tariffsLoading) return (
@@ -1476,7 +1505,10 @@ export default function Consoles() {
 
       <Modal 
         isOpen={startSessionModal.isOpen} 
-        onClose={() => setStartSessionModal({ isOpen: false, consoleId: '' })} 
+        onClose={() => {
+          setStartSessionModal({ isOpen: false, consoleId: '' });
+          setInlineCustomerTarget(null);
+        }} 
         title="شروع نشست بازی"
       >
         <form onSubmit={handleStartSession} className="space-y-6">
@@ -1661,7 +1693,15 @@ export default function Consoles() {
                   });
                 }
               }}
+              onCreateOption={() => setInlineCustomerTarget('session')}
             />
+
+            {inlineCustomerTarget === 'session' && (
+              <InlineClientCreate
+                onCreated={handleInlineCustomerCreated}
+                onCancel={() => setInlineCustomerTarget(null)}
+              />
+            )}
 
             {(sessionForm.userIds || []).length > 1 && (
               <p className="text-[11px] text-emerald-700 dark:text-emerald-400 font-bold flex items-center gap-1.5 bg-emerald-50 dark:bg-emerald-950/30 p-2.5 rounded-xl border border-emerald-200 dark:border-emerald-900/40">
@@ -2145,14 +2185,58 @@ export default function Consoles() {
                   />
                 </div>
               </div>
+
+              {actionModal.session?.addedItems && actionModal.session.addedItems.length > 0 && (
+                <div className="p-3 bg-amber-50/70 dark:bg-amber-950/20 rounded-2xl border border-amber-200 dark:border-amber-900/50 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="text-xs font-black text-amber-900 dark:text-amber-200">سفارش فعلی این نشست</span>
+                    <span className="text-[10px] text-amber-700 dark:text-amber-400 font-bold">تغییر تعداد از همین‌جا</span>
+                  </div>
+                  <div className="space-y-1.5">
+                    {actionModal.session.addedItems.map(item => {
+                      const product = products.find(candidate => candidate.id === item.productId);
+                      const canIncrease = !!product && Number(product.stock) > 0;
+                      return (
+                        <div key={item.productId} className="flex items-center justify-between gap-2 bg-white/80 dark:bg-slate-900/70 rounded-xl px-2.5 py-2 border border-amber-100 dark:border-slate-800">
+                          <div className="min-w-0">
+                            <p className="text-[11px] font-black text-slate-800 dark:text-slate-200 truncate">{item.name}</p>
+                            <p className="text-[10px] text-slate-400 font-bold">{formatPrice(item.price * item.quantity)}</p>
+                          </div>
+                          <div className="flex items-center gap-1.5 shrink-0">
+                            <button
+                              type="button"
+                              onClick={() => product && handleUpdateSessionItem(actionModal.session!, item.productId, 1, product)}
+                              disabled={!canIncrease}
+                              className="w-7 h-7 rounded-lg bg-emerald-50 text-emerald-700 hover:bg-emerald-100 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center font-black transition-colors"
+                              title={canIncrease ? 'افزایش تعداد' : 'موجودی کافی نیست'}
+                            >
+                              <Plus size={14} />
+                            </button>
+                            <span className="w-7 text-center text-xs font-black text-slate-900 dark:text-white">{formatPersianDigits(item.quantity)}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleUpdateSessionItem(actionModal.session!, item.productId, -1)}
+                              className="w-7 h-7 rounded-lg bg-rose-50 text-rose-700 hover:bg-rose-100 flex items-center justify-center font-black transition-colors"
+                              title="کاهش تعداد"
+                            >
+                              <MinusCircle size={14} />
+                            </button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
               <div className="max-h-[40vh] overflow-y-auto space-y-2 pr-1 custom-scrollbar">
                 {products.map(p => (
                   <div key={p.id} data-name={p.name} className="product-item flex items-center justify-between p-4 bg-white dark:bg-slate-800 border border-gray-100 dark:border-slate-700/70 rounded-2xl shadow-sm">
                     <div className="text-right">
                       <p className="font-bold text-gray-900 dark:text-white text-sm">{p.name}</p>
-                      <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">{formatPrice(p.price)}</p>
+                      <p className="text-[10px] text-emerald-600 dark:text-emerald-400 font-bold">{formatPrice(p.price)} · موجودی: {formatPersianDigits(p.stock)}</p>
                     </div>
-                    <Button size="sm" onClick={() => handleSessionAction('add_product', { product: p })} className="h-8 text-[10px]">
+                    <Button type="button" size="sm" disabled={Number(p.stock) <= 0} onClick={() => handleSessionAction('add_product', { product: p })} className="h-8 text-[10px]">
                       <Plus size={12} className="ml-1" /> افزودن
                     </Button>
                   </div>
@@ -2167,7 +2251,10 @@ export default function Consoles() {
       {/* Checkout/Invoice Modal */}
       <Modal 
         isOpen={checkoutModal.isOpen} 
-        onClose={() => setCheckoutModal(prev => ({ ...prev, isOpen: false, session: null }))} 
+        onClose={() => {
+          setCheckoutModal(prev => ({ ...prev, isOpen: false, session: null }));
+          setInlineCustomerTarget(null);
+        }} 
         title="صورتحساب نهایی"
       >
         <div className="bg-white dark:bg-slate-900 rounded-3xl p-5 md:p-6 border border-slate-200 dark:border-slate-800 shadow-sm space-y-5">
@@ -2267,7 +2354,15 @@ export default function Consoles() {
                   setCheckoutModal({ ...checkoutModal, sessionUserIds: [...current, val] });
                 }
               }}
+              onCreateOption={() => setInlineCustomerTarget('checkout')}
             />
+
+            {inlineCustomerTarget === 'checkout' && (
+              <InlineClientCreate
+                onCreated={handleInlineCustomerCreated}
+                onCancel={() => setInlineCustomerTarget(null)}
+              />
+            )}
 
             {(checkoutModal.sessionUserIds || []).length > 1 && (
               <div className="pt-2 border-t border-slate-200 dark:border-slate-700/80 flex items-center justify-between text-xs font-bold">
@@ -2341,21 +2436,43 @@ export default function Consoles() {
             {checkoutModal.session?.addedItems && checkoutModal.session.addedItems.length > 0 && (
               <div className="p-3 bg-amber-50/50 dark:bg-slate-800/40 rounded-xl border border-amber-100 dark:border-slate-800 space-y-1.5">
                 <span className="text-[10px] font-bold text-amber-700 dark:text-amber-400 block mb-1">اقلام بوفه:</span>
-                {checkoutModal.session.addedItems.map((item, idx) => (
-                  <div key={idx} className="flex justify-between items-center text-xs">
-                    <div className="flex items-center gap-1.5">
-                      <button 
-                        onClick={() => handleRemoveItem(checkoutModal.session!, item.productId)}
-                        className="p-1 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors"
-                        title="حذف از فاکتور"
-                      >
-                        <Trash2 size={11} />
-                      </button>
-                      <span className="text-slate-700 dark:text-slate-300 font-bold">{item.name} × {formatPersianDigits(item.quantity)}</span>
+                {checkoutModal.session.addedItems.map((item, idx) => {
+                  const product = products.find(candidate => candidate.id === item.productId);
+                  const canIncrease = !!product && Number(product.stock) > 0;
+                  return (
+                    <div key={idx} className="flex justify-between items-center gap-2 text-xs">
+                      <div className="flex items-center gap-1.5 min-w-0">
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveItem(checkoutModal.session!, item.productId)}
+                          className="p-1 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors shrink-0"
+                          title="حذف کامل از فاکتور"
+                        >
+                          <Trash2 size={11} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleUpdateSessionItem(checkoutModal.session!, item.productId, -1)}
+                          className="w-6 h-6 bg-rose-50 text-rose-600 rounded-lg hover:bg-rose-100 transition-colors shrink-0 flex items-center justify-center"
+                          title="کاهش تعداد"
+                        >
+                          <MinusCircle size={12} />
+                        </button>
+                        <span className="text-slate-700 dark:text-slate-300 font-bold truncate">{item.name} × {formatPersianDigits(item.quantity)}</span>
+                        <button
+                          type="button"
+                          onClick={() => product && handleUpdateSessionItem(checkoutModal.session!, item.productId, 1, product)}
+                          disabled={!canIncrease}
+                          className="w-6 h-6 bg-emerald-50 text-emerald-700 rounded-lg hover:bg-emerald-100 disabled:opacity-40 disabled:cursor-not-allowed transition-colors shrink-0 flex items-center justify-center"
+                          title={canIncrease ? 'افزایش تعداد' : 'موجودی کافی نیست'}
+                        >
+                          <PlusCircle size={12} />
+                        </button>
+                      </div>
+                      <span className="text-slate-900 dark:text-white font-black shrink-0">{formatPrice(item.price * item.quantity)}</span>
                     </div>
-                    <span className="text-slate-900 dark:text-white font-black">{formatPrice(item.price * item.quantity)}</span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
 
