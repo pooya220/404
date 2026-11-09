@@ -1170,6 +1170,10 @@ export default function Consoles() {
   };
 
   const handleRemoveItem = async (session: Session, productId: string) => {
+    await handleUpdateSessionItem(session, productId, -1);
+  };
+
+  const handleDeleteItem = async (session: Session, productId: string) => {
     const item = (session.addedItems || []).find(entry => entry.productId === productId);
     if (!item) return;
     await handleUpdateSessionItem(session, productId, -Math.max(1, item.quantity));
@@ -2444,7 +2448,7 @@ export default function Consoles() {
                       <div className="flex items-center gap-1.5 min-w-0">
                         <button
                           type="button"
-                          onClick={() => handleRemoveItem(checkoutModal.session!, item.productId)}
+                          onClick={() => handleDeleteItem(checkoutModal.session!, item.productId)}
                           className="p-1 bg-red-50 text-red-500 rounded-lg hover:bg-red-100 transition-colors shrink-0"
                           title="حذف کامل از فاکتور"
                         >
