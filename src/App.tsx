@@ -1,5 +1,5 @@
 import { apiRequest, triggerDatabaseRefresh } from './hooks/useFirestore';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { BrowserRouter, Routes, Route, Link, useLocation, Navigate } from 'react-router-dom';
 import { 
   LayoutDashboard, 
@@ -203,39 +203,119 @@ function DatabaseStatusControl({
   const label = status === 'CONNECTED' ? 'MySQL متصل' : status === 'LOCAL' ? 'ذخیره مرورگر' : 'دیتابیس قطع';
 
   return (
-    <div
-      title={details || label}
+    <button
+      type="button"
+      title={`${details || label} — برای بررسی مجدد کلیک کنید`}
+      onClick={onRefresh}
+      disabled={isRefreshing}
+      aria-label={`تازه‌سازی اتصال دیتابیس: ${label}`}
       className={cn(
-        "flex items-center justify-between gap-2 rounded-xl border px-2.5 py-2 transition-all",
-        status === 'CONNECTED' && "bg-emerald-50/80 text-emerald-700 border-emerald-200 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800/60",
-        status === 'LOCAL' && "bg-cyan-50/80 text-cyan-700 border-cyan-200 dark:bg-cyan-950/40 dark:text-cyan-400 dark:border-cyan-800/60",
-        (status === 'DISCONNECTED' || status === 'ERROR') && "bg-rose-50/80 text-rose-700 border-rose-200 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-800/60"
+        "relative w-10 h-10 rounded-xl border flex items-center justify-center transition-all disabled:opacity-60",
+        status === 'CONNECTED' && "bg-emerald-50/80 text-emerald-700 border-emerald-200 hover:bg-emerald-100 dark:bg-emerald-950/40 dark:text-emerald-400 dark:border-emerald-800/60 dark:hover:bg-emerald-900/50",
+        status === 'LOCAL' && "bg-cyan-50/80 text-cyan-700 border-cyan-200 hover:bg-cyan-100 dark:bg-cyan-950/40 dark:text-cyan-400 dark:border-cyan-800/60 dark:hover:bg-cyan-900/50",
+        (status === 'DISCONNECTED' || status === 'ERROR') && "bg-rose-50/80 text-rose-700 border-rose-200 hover:bg-rose-100 dark:bg-rose-950/40 dark:text-rose-400 dark:border-rose-800/60 dark:hover:bg-rose-900/50"
       )}
     >
-      <div className="flex items-center gap-2 min-w-0">
-        <div className="relative flex items-center justify-center shrink-0">
-          <Database size={15} />
-          <span className={cn(
-            "absolute -top-1 -right-1 w-2 h-2 rounded-full ring-2 ring-white dark:ring-slate-900",
-            status === 'CONNECTED' && "bg-emerald-500 animate-pulse",
-            status === 'LOCAL' && "bg-cyan-500",
-            (status === 'DISCONNECTED' || status === 'ERROR') && "bg-rose-500 animate-pulse"
-          )} />
-        </div>
-        <div className="min-w-0">
-          <p className="text-[10px] font-black leading-none mb-1">اتصال دیتابیس</p>
-          <p className="text-[9px] font-bold opacity-75 truncate">{label}</p>
-        </div>
-      </div>
+      <Database size={19} />
+      <span className={cn(
+        "absolute top-1 right-1 w-2 h-2 rounded-full ring-2 ring-white dark:ring-slate-900",
+        status === 'CONNECTED' && "bg-emerald-500 animate-pulse",
+        status === 'LOCAL' && "bg-cyan-500",
+        (status === 'DISCONNECTED' || status === 'ERROR') && "bg-rose-500 animate-pulse"
+      )} />
+      <RefreshCw size={9} className={cn("absolute bottom-1 left-1 opacity-70", isRefreshing && "animate-spin")} />
+    </button>
+  );
+}
+
+function SettingsMenuControl({
+  items,
+  isSelected,
+  onNavigate
+}: {
+  items: Array<{ to: string; icon: any; label: string }>;
+  isSelected: (to: string) => boolean;
+  onNavigate?: () => void;
+}) {
+  const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!isOpen) return;
+    const closeOnOutsideClick = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) setIsOpen(false);
+    };
+    const closeOnEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') setIsOpen(false);
+    };
+    document.addEventListener('mousedown', closeOnOutsideClick);
+    document.addEventListener('keydown', closeOnEscape);
+    return () => {
+      document.removeEventListener('mousedown', closeOnOutsideClick);
+      document.removeEventListener('keydown', closeOnEscape);
+    };
+  }, [isOpen]);
+
+  return (
+    <div className="relative flex-1" ref={menuRef}>
+      <AnimatePresence>
+        {isOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: 8, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 8, scale: 0.98 }}
+            transition={{ duration: 0.16 }}
+            className="absolute bottom-full right-0 mb-2 w-64 max-w-[calc(100vw-4rem)] rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 p-2 shadow-2xl z-[60]"
+          >
+            <div className="px-3 py-2 mb-1 border-b border-slate-100 dark:border-slate-800">
+              <p className="text-xs font-black text-slate-900 dark:text-white">پیکربندی سیستم</p>
+              <p className="text-[10px] font-bold text-slate-400 mt-1">انتخاب بخش تنظیمات</p>
+            </div>
+            <div className="space-y-1 max-h-72 overflow-y-auto">
+              {items.map(item => {
+                const Icon = item.icon;
+                const active = isSelected(item.to);
+                return (
+                  <Link
+                    key={item.to}
+                    to={item.to}
+                    onClick={() => {
+                      setIsOpen(false);
+                      onNavigate?.();
+                    }}
+                    className={cn(
+                      "flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-xs font-bold transition-colors",
+                      active
+                        ? "bg-indigo-600 text-white"
+                        : "text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+                    )}
+                  >
+                    <Icon size={15} className="shrink-0" />
+                    <span>{item.label}</span>
+                  </Link>
+                );
+              })}
+              {items.length === 0 && (
+                <p className="px-3 py-4 text-center text-[11px] font-bold text-slate-400">بخش تنظیماتی در دسترس نیست.</p>
+              )}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
       <button
         type="button"
-        onClick={onRefresh}
-        disabled={isRefreshing}
-        className="w-7 h-7 rounded-lg flex items-center justify-center shrink-0 hover:bg-white/80 dark:hover:bg-slate-800/80 disabled:opacity-50 transition-colors"
-        title="بررسی مجدد اتصال و تازه‌سازی اطلاعات"
-        aria-label="تازه‌سازی اتصال دیتابیس"
+        onClick={() => setIsOpen(value => !value)}
+        aria-expanded={isOpen}
+        className={cn(
+          "w-full h-10 rounded-xl border flex items-center justify-center gap-2 text-xs font-black transition-colors",
+          isOpen
+            ? "bg-indigo-600 text-white border-indigo-600"
+            : "bg-slate-50 text-slate-700 border-slate-200 hover:bg-indigo-50 hover:text-indigo-700 dark:bg-slate-800 dark:text-slate-200 dark:border-slate-700 dark:hover:bg-indigo-950/50 dark:hover:text-indigo-300"
+        )}
       >
-        <RefreshCw size={14} className={isRefreshing ? 'animate-spin' : ''} />
+        <SettingsIcon size={16} />
+        <span>تنظیمات</span>
+        <ChevronDown size={13} className={cn("transition-transform", isOpen && "rotate-180")} />
       </button>
     </div>
   );
@@ -366,7 +446,10 @@ function Layout({ onLogout, children, currentUser }: { onLogout: () => void, chi
     }
   }
 
-  const groups = rawGroups.map(g => {
+  const settingsMenuItems = rawGroups.find(g => g.id === 'settings')?.items
+    .filter(() => allowedPaths.includes('/settings')) || [];
+
+  const groups = rawGroups.filter(g => g.id !== 'settings').map(g => {
     return {
       ...g,
       items: g.items
@@ -519,13 +602,16 @@ function Layout({ onLogout, children, currentUser }: { onLogout: () => void, chi
                 <span>خروج</span>
               </button>
             </div>
-            <div className="mt-3 pt-3 border-t border-slate-200/70 dark:border-slate-800/70">
+            <div className="mt-3 pt-3 border-t border-slate-200/70 dark:border-slate-800/70 flex items-center gap-2">
               <DatabaseStatusControl
                 status={dbStatus.status}
                 details={dbStatus.details}
                 isRefreshing={dbStatus.isRefreshing}
                 onRefresh={handleDatabaseRefresh}
               />
+              {allowedPaths.includes('/settings') && (
+                <SettingsMenuControl items={settingsMenuItems} isSelected={isSelected} />
+              )}
             </div>
           </div>
         </div>
@@ -652,13 +738,20 @@ function Layout({ onLogout, children, currentUser }: { onLogout: () => void, chi
                       <span>خروج</span>
                     </button>
                   </div>
-                  <div className="mt-3 pt-3 border-t border-slate-200/70 dark:border-slate-800/70">
+                  <div className="mt-3 pt-3 border-t border-slate-200/70 dark:border-slate-800/70 flex items-center gap-2">
                     <DatabaseStatusControl
                       status={dbStatus.status}
                       details={dbStatus.details}
                       isRefreshing={dbStatus.isRefreshing}
                       onRefresh={handleDatabaseRefresh}
                     />
+                    {allowedPaths.includes('/settings') && (
+                      <SettingsMenuControl
+                        items={settingsMenuItems}
+                        isSelected={isSelected}
+                        onNavigate={() => setIsSidebarOpen(false)}
+                      />
+                    )}
                   </div>
                 </div>
               </div>
