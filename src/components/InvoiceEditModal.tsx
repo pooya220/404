@@ -13,6 +13,7 @@ import { useFirestore, useCollection, triggerDatabaseRefresh } from '../hooks/us
 import { ReportItem } from './InvoiceModal';
 import { Product, AppUser, ClientTier } from '../types';
 import { SearchableSelect } from './SearchableSelect';
+import { InlineClientCreate } from './InlineClientCreate';
 
 interface InvoiceEditModalProps {
   isOpen: boolean;
@@ -55,6 +56,8 @@ export function InvoiceEditModal({
   const [newCustomerName, setNewCustomerName] = useState('');
   const [newCustomerPhone, setNewCustomerPhone] = useState('');
   const [registerNewClient, setRegisterNewClient] = useState(false);
+  const [inlineCreatedClient, setInlineCreatedClient] = useState<AppUser | null>(null);
+  const [isCreatingInlineClient, setIsCreatingInlineClient] = useState(false);
 
   // Create Mode Specific fields
   const [newTitle, setNewTitle] = useState('فاکتور دستی');
@@ -69,6 +72,8 @@ export function InvoiceEditModal({
 
   useEffect(() => {
     if (isOpen) {
+      setInlineCreatedClient(null);
+      setIsCreatingInlineClient(false);
       if (mode === 'edit' && reportToEdit) {
         const rawDate = new Date(reportToEdit.timestamp || Date.now());
         const dStr = !isNaN(rawDate.getTime()) ? localDateInput(rawDate) : localDateInput();
@@ -143,10 +148,15 @@ export function InvoiceEditModal({
   }, [isOpen, mode, reportToEdit]);
 
   // Selected client & tier resolution
+  const availableClients = useMemo(
+    () => [...(clients || []), ...(inlineCreatedClient && !clients?.some(client => client.id === inlineCreatedClient.id) ? [inlineCreatedClient] : [])],
+    [clients, inlineCreatedClient]
+  );
+
   const selectedClient = useMemo(() => {
-    if (!selectedClientId || !clients) return null;
-    return clients.find(c => c.id === selectedClientId) || null;
-  }, [selectedClientId, clients]);
+    if (!selectedClientId) return null;
+    return availableClients.find(c => c.id === selectedClientId) || null;
+  }, [selectedClientId, availableClients]);
 
   const selectedClientTier = useMemo(() => {
     if (!selectedClient || !clientTiers) return null;
@@ -154,7 +164,7 @@ export function InvoiceEditModal({
   }, [selectedClient, clientTiers]);
 
   const clientOptions = useMemo(() => {
-    return (clients || []).map(c => {
+    return availableClients.map(c => {
       const tierName = clientTiers?.find(t => t.id === c.tier || t.name === c.tier)?.name || c.tier || 'برنزی';
       const phoneText = c.phone ? formatPersianDigits(c.phone) : 'بدون شماره';
       const balanceText = `کیف پول: ${formatCurrency(c.balance || 0)}`;
@@ -164,12 +174,12 @@ export function InvoiceEditModal({
         subLabel: `${phoneText} • سطح: ${tierName} • ${balanceText}`
       };
     });
-  }, [clients, clientTiers]);
+  }, [availableClients, clientTiers]);
 
   const handleSelectClient = (clientId: string) => {
     setSelectedClientId(clientId);
     if (clientId) {
-      const found = clients?.find(c => c.id === clientId);
+      const found = availableClients.find(c => c.id === clientId);
       if (found) {
         setNewCustomerName(found.name);
         setNewCustomerPhone(found.phone || '');
@@ -293,7 +303,7 @@ export function InvoiceEditModal({
           const sale = reportToEdit.rawSale;
           if (sale) {
             const finalClient = (customerMode === 'club' && selectedClientId) 
-              ? clients?.find(c => c.id === selectedClientId) 
+              ? availableClients.find(c => c.id === selectedClientId) 
               : null;
             await update('sales', sale.id, {
               timestamp: customTimestamp,
@@ -547,11 +557,25 @@ export function InvoiceEditModal({
                     options={clientOptions}
                     value={selectedClientId}
                     onChange={handleSelectClient}
+                    onCreateOption={() => setIsCreatingInlineClient(true)}
                     label="جستجو و انتخاب مشتری از باشگاه"
                     placeholder="جستجو بر اساس نام، شماره موبایل یا سطح..."
                     emptyMessage="هیچ مشتری با این مشخصات در باشگاه یافت نشد"
                     allowClear={true}
                   />
+
+                  {isCreatingInlineClient && (
+                    <InlineClientCreate
+                      onCreated={(client) => {
+                        setInlineCreatedClient(client);
+                        setSelectedClientId(client.id);
+                        setNewCustomerName(client.name);
+                        setNewCustomerPhone(client.phone || '');
+                        setIsCreatingInlineClient(false);
+                      }}
+                      onCancel={() => setIsCreatingInlineClient(false)}
+                    />
+                  )}
 
                   {/* Selected Client Card Details */}
                   {selectedClient ? (
